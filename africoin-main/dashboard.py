@@ -95,7 +95,7 @@ class AfricoinDashboard:
     def __init__(self, api_url=None):
         # Read from env so this can point at a real deployed blockchain API
         # service in production instead of a hardcoded localhost URL.
-        self.api_url = (api_url or os.environ.get('WALLET_API_URL', 'http://localhost:5000')).rstrip('/')
+        self.api_url = (api_url or os.environ.get('WALLET_API_URL', 'https://africoin-v1.onrender.com/')).rstrip('/')
         self.cache = {}
         self.cache_timeout = 30  # seconds
         self.last_update = 0
