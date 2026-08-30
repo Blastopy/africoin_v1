@@ -1021,7 +1021,7 @@ def admin_fix_wallet_keys():
 @app.after_request
 def add_cors_headers(response):
     origin = request.headers.get("Origin")
-    allowed = ["http://localhost:7070", "http://127.0.0.1:7070"]
+    allowed = ["https://africoin-v1.onrender.com", "https://africoin-v1.onrender.com/register"]
 
     if origin in allowed:
         response.headers["Access-Control-Allow-Origin"] = origin

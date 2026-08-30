@@ -48,7 +48,7 @@ class AfricoinConfig:
     # Session settings
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)
     
-    WALLET_API_URL = os.environ.get('WALLET_API_URL', 'http://localhost:5000')
+    WALLET_API_URL = os.environ.get('WALLET_API_URL', 'https://africoin-v1.onrender.com')
     WALLET_API_KEY = os.environ.get('WALLET_API_KEY', 'your_internal_api_key_456')
     WALLET_MASTER_PASSWORD = os.environ.get('WALLET_MASTER_PASSWORD', 'default_master_password_123')
     
