@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Africoin Dashboard - Enterprise Blockchain Platform</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="{{ url_for('static', filename='images/africoin.png') }}" rel="icon" type="image/x-icon">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <img src="{{ url_for('static', filename='images/africoin.png') }}" alt="logo" width="100%" height="100%"/>
+            <h1>Africoin</h1>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="active"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="/blocks"><i class="fas fa-cube"></i> Blocks</a>
+            <a href="/transactions"><i class="fas fa-exchange-alt"></i> Transactions</a>
+            <a href="/wallet"><i class="fas fa-wallet"></i> Wallet</a>
+            <a href="/mining"><i class="fas fa-digging"></i> Mining</a>
+            <a href="/contracts"><i class="fas fa-file-contract"></i> Contracts</a>
+        </div>
+        <div class="nav-actions">
+            <button class="btn btn-secondary" onclick="refreshData()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            <a href="/profile"><button class="btn">
+                <i class="fas fa-user"></i> Account
+            </button>
+        </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero fade-in">
+            <h1>Africoin Enterprise Platform</h1>
+            <p>Next-generation blockchain technology powering Africa's digital economy</p>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-value" id="totalSupply">21.0M</div>
+                    <div class="hero-stat-label">Total Supply</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value" id="activeNodes">1,247</div>
+                    <div class="hero-stat-label">Active Nodes</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value" id="marketCap">$2.1B</div>
+                    <div class="hero-stat-label">Market Cap</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value" id="transactionsToday">45.2K</div>
+                    <div class="hero-stat-label">Transactions Today</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <div class="action-card" onclick="navigateTo('/wallet')">
+                <div class="action-icon">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <h3>Manage Wallet</h3>
+                <p>Send, receive, and manage your AFC tokens securely</p>
+                <button class="btn btn-secondary">Access Wallet</button>
+            </div>
+            
+            <div class="action-card" onclick="navigateTo('/mining')">
+                <div class="action-icon">
+                    <i class="fas fa-digging"></i>
+                </div>
+                <h3>Start Mining</h3>
+                <p>Join our mining pool and earn AFC rewards</p>
+                <button class="btn btn-secondary">Start Mining</button>
+            </div>
+            
+            <div class="action-card" onclick="navigateTo('/contracts')">
+                <div class="action-icon">
+                    <i class="fas fa-file-contract"></i>
+                </div>
+                <h3>Smart Contracts</h3>
+                <p>Deploy and interact with decentralized applications</p>
+                <button class="btn btn-secondary">Explore Contracts</button>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-value" id="blockHeight">{{ stats.block_height }}</div>
+                <div class="stat-label">Block Height</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-arrow-up"></i> {{ stats.recent_blocks }} new blocks
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="networkHashrate">{{ network_info.network_hashrate }}</div>
+                <div class="stat-label">Network Hashrate</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-arrow-up"></i> 2.4% increase
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgBlockTime">9.8s</div>
+                <div class="stat-label">Avg Block Time</div>
+                <div class="stat-trend trend-down">
+                    <i class="fas fa-arrow-down"></i> 0.3s faster
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="transactionFees">0.0012 AFC</div>
+                <div class="stat-label">Avg Transaction Fee</div>
+                <div class="stat-trend trend-down">
+                    <i class="fas fa-arrow-down"></i> 15% lower
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Main Charts -->
+            <div class="charts-section">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Network Activity</h3>
+                        <div class="chart-actions">
+                            <select class="btn btn-secondary" id="timeRange" onchange="updateChartData()">
+                                <option value="24h">24H</option>
+                                <option value="7d">7D</option>
+                                <option value="30d">30D</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="networkActivityChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Price Performance</h3>
+                        <div class="chart-actions">
+                            <select class="btn btn-secondary" id="currencySelect" onchange="updatePriceChart()">
+                                <option value="usd">USD</option>
+                                <option value="btc">BTC</option>
+                                <option value="eth">ETH</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="priceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="network-status">
+                    <h3 style="margin-bottom: 1.5rem;">Network Status</h3>
+                    <div class="status-item">
+                        <div style="display: flex; align-items: center;">
+                            <div class="status-indicator"></div>
+                            <span class="status-label">Blockchain Sync</span>
+                        </div>
+                        <span class="status-value">100%</span>
+                    </div>
+                    <div class="status-item">
+                        <div style="display: flex; align-items: center;">
+                            <div class="status-indicator"></div>
+                            <span class="status-label">Node Health</span>
+                        </div>
+                        <span class="status-value">Excellent</span>
+                    </div>
+                    <div class="status-item">
+                        <div style="display: flex; align-items: center;">
+                            <div class="status-indicator"></div>
+                            <span class="status-label">API Response</span>
+                        </div>
+                        <span class="status-value">32ms</span>
+                    </div>
+                    <div class="status-item">
+                        <div style="display: flex; align-items: center;">
+                            <div class="status-indicator warning"></div>
+                            <span class="status-label">Memory Usage</span>
+                        </div>
+                        <span class="status-value">78%</span>
+                    </div>
+                </div>
+
+                <div class="activity-section" style="margin-top: 2rem;">
+                    <h3 style="margin-bottom: 1.5rem;">Recent Activity</h3>
+                    <div class="activity-list" id="recentActivity">
+                        <!-- Activity items will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; <span id="year"></span> Africoin Enterprise Platform. Building the future of African blockchain technology.</p>
+        <script>
+        document.getElementById("year").textContent = new Date().getFullYear();
+        </script>
+        <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+            <span style="color: var(--primary);">v2.1.0</span> | 
+            Network: <strong>Mainnet</strong> | 
+            Last Block: <strong id="lastBlockTime">Just now</strong>
+        </p>
+    </footer>
+
+    <script>
+        // Chart instances
+        let networkChart, priceChart;
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            loadRecentActivity();
+            startLiveUpdates();
+        });
+
+        // Fixed Chart Initialization
+        function initializeCharts() {
+            // Destroy existing charts if they exist
+            if (networkChart) {
+                networkChart.destroy();
+            }
+            if (priceChart) {
+                priceChart.destroy();
+            }
+
+            // Network Activity Chart - FIXED CONFIGURATION
+            const networkCtx = document.getElementById('networkActivityChart').getContext('2d');
+            networkChart = new Chart(networkCtx, {
+                type: 'line',
+                data: {
+                    labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '23:59'],
+                    datasets: [
+                        {
+                            label: 'Transactions',
+                            data: [1200, 1900, 3000, 5000, 2000, 3000, 4500],
+                            borderColor: '#FFD700',
+                            backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#FFD700',
+                            pointBorderColor: '#FFFFFF',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Blocks Mined',
+                            data: [45, 78, 56, 89, 67, 54, 72],
+                            borderColor: '#2E8B57',
+                            backgroundColor: 'rgba(46, 139, 87, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#2E8B57',
+                            pointBorderColor: '#FFFFFF',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 10,
+                            right: 10,
+                            bottom: 10,
+                            left: 10
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#E8E6E3',
+                                font: {
+                                    size: 12,
+                                    family: "'Inter', sans-serif"
+                                },
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(30, 35, 40, 0.95)',
+                            titleColor: '#E8E6E3',
+                            bodyColor: '#E8E6E3',
+                            borderColor: '#2E8B57',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            displayColors: true,
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255,255,255,0.1)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#A8A6A3',
+                                font: {
+                                    family: "'Inter', sans-serif",
+                                    size: 11
+                                },
+                                padding: 8
+                            },
+                            title: {
+                                display: true,
+                                text: 'Count',
+                                color: '#A8A6A3',
+                                font: {
+                                    family: "'Inter', sans-serif",
+                                    size: 12
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255,255,255,0.1)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#A8A6A3',
+                                font: {
+                                    family: "'Inter', sans-serif",
+                                    size: 11
+                                },
+                                maxRotation: 0
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    },
+                    elements: {
+                        line: {
+                            tension: 0.4
+                        }
+                    }
+                }
+            });
+
+            // Price Chart - FIXED CONFIGURATION
+            const priceCtx = document.getElementById('priceChart').getContext('2d');
+            priceChart = new Chart(priceCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'AFC Price (USD)',
+                        data: [105.2, 108.5, 112.3, 110.8, 115.6, 118.2, 120.5],
+                        borderColor: '#2E8B57',
+                        backgroundColor: 'rgba(46, 139, 87, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#2E8B57',
+                        pointBorderColor: '#FFFFFF',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 10,
+                            right: 10,
+                            bottom: 10,
+                            left: 10
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#E8E6E3',
+                                font: {
+                                    size: 12,
+                                    family: "'Inter', sans-serif"
+                                },
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(30, 35, 40, 0.95)',
+                            titleColor: '#E8E6E3',
+                            bodyColor: '#E8E6E3',
+                            borderColor: '#2E8B57',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return `Price: $${context.parsed.y}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 100,
+                            grid: {
+                                color: 'rgba(255,255,255,0.1)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#A8A6A3',
+                                font: {
+                                    family: "'Inter', sans-serif",
+                                    size: 11
+                                },
+                                padding: 8,
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Price (USD)',
+                                color: '#A8A6A3',
+                                font: {
+                                    family: "'Inter', sans-serif",
+                                    size: 12
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255,255,255,0.1)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#A8A6A3',
+                                font: {
+                                    family: "'Inter', sans-serif",
+                                    size: 11
+                                },
+                                maxRotation: 0
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    },
+                    elements: {
+                        line: {
+                            tension: 0.4
+                        }
+                    }
+                }
+            });
+
+            // Force chart resize to ensure proper rendering
+            setTimeout(() => {
+                if (networkChart) networkChart.resize();
+                if (priceChart) priceChart.resize();
+            }, 100);
+        }
+
+        // Update chart data based on time range
+        function updateChartData() {
+            const timeRange = document.getElementById('timeRange').value;
+            
+            // Simulate different data based on time range
+            let newData;
+            switch(timeRange) {
+                case '7d':
+                    newData = {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        transactions: [4500, 5200, 4800, 6100, 5800, 5300, 4900],
+                        blocks: [72, 85, 78, 92, 88, 81, 76]
+                    };
+                    break;
+                case '30d':
+                    newData = {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                        transactions: [28000, 32000, 35000, 38000],
+                        blocks: [450, 520, 580, 620]
+                    };
+                    break;
+                default: // 24h
+                    newData = {
+                        labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '23:59'],
+                        transactions: [1200, 1900, 3000, 5000, 2000, 3000, 4500],
+                        blocks: [45, 78, 56, 89, 67, 54, 72]
+                    };
+            }
+
+            if (networkChart) {
+                networkChart.data.labels = newData.labels;
+                networkChart.data.datasets[0].data = newData.transactions;
+                networkChart.data.datasets[1].data = newData.blocks;
+                networkChart.update('none');
+            }
+        }
+
+        // Update price chart based on currency
+        function updatePriceChart() {
+            const currency = document.getElementById('currencySelect').value;
+            
+            // Simulate different price data based on currency
+            let newData;
+            switch(currency) {
+                case 'btc':
+                    newData = [0.0025, 0.0026, 0.0027, 0.00265, 0.0028, 0.0029, 0.0030];
+                    break;
+                case 'eth':
+                    newData = [0.035, 0.036, 0.038, 0.037, 0.039, 0.040, 0.041];
+                    break;
+                default: // usd
+                    newData = [105.2, 108.5, 112.3, 110.8, 115.6, 118.2, 120.5];
+            }
+
+            if (priceChart) {
+                priceChart.data.datasets[0].data = newData;
+                priceChart.update('none');
+            }
+        }
+
+        // Load Recent Activity
+        function loadRecentActivity() {
+            const activities = [
+                {
+                    icon: 'fas fa-cube',
+                    title: 'New Block Mined',
+                    description: 'Block #12456 with 142 transactions',
+                    time: '2 minutes ago',
+                    color: '#2E8B57'
+                },
+                {
+                    icon: 'fas fa-exchange-alt',
+                    title: 'Large Transaction',
+                    description: '12,500 AFC transferred between wallets',
+                    time: '5 minutes ago',
+                    color: '#FFD700'
+                },
+                {
+                    icon: 'fas fa-user-plus',
+                    title: 'New Node Joined',
+                    description: 'Node from Nigeria joined the network',
+                    time: '15 minutes ago',
+                    color: '#3B82F6'
+                },
+                {
+                    icon: 'fas fa-file-contract',
+                    title: 'Contract Deployed',
+                    description: 'New smart contract deployed by user',
+                    time: '1 hour ago',
+                    color: '#8B5CF6'
+                },
+                {
+                    icon: 'fas fa-sync-alt',
+                    title: 'Network Update',
+                    description: 'Difficulty adjustment completed',
+                    time: '2 hours ago',
+                    color: '#10B981'
+                }
+            ];
+
+            const activityList = document.getElementById('recentActivity');
+            activityList.innerHTML = activities.map(activity => `
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: rgba(${hexToRgb(activity.color)}, 0.2); color: ${activity.color};">
+                        <i class="${activity.icon}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">${activity.title}</div>
+                        <div class="activity-description">${activity.description}</div>
+                    </div>
+                    <div class="activity-time">${activity.time}</div>
+                </div>
+            `).join('');
+        }
+
+        // Utility function to convert hex to RGB
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? 
+                `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` 
+                : '46, 139, 87';
+        }
+
+        // Live Updates
+        function startLiveUpdates() {
+            // Update block height every 30 seconds
+            setInterval(() => {
+                const currentHeight = parseInt(document.getElementById('blockHeight').textContent.replace(/,/g, ''));
+                document.getElementById('blockHeight').textContent = (currentHeight + 1).toLocaleString();
+                document.getElementById('lastBlockTime').textContent = 'Just now';
+            }, 30000);
+
+            // Update transaction count every minute
+            setInterval(() => {
+                const currentTxs = parseInt(document.getElementById('transactionsToday').textContent.replace('K', '000').replace('.', ''));
+                const newTxs = currentTxs + Math.floor(Math.random() * 100) + 50;
+                document.getElementById('transactionsToday').textContent = (newTxs / 1000).toFixed(1) + 'K';
+            }, 60000);
+
+            // Simulate network hashrate fluctuations
+            setInterval(() => {
+                const currentHashrate = parseFloat(document.getElementById('networkHashrate').textContent);
+                const change = (Math.random() - 0.5) * 0.5; // Random change between -0.5 and +0.5
+                const newHashrate = Math.max(10, currentHashrate + change);
+                document.getElementById('networkHashrate').textContent = newHashrate.toFixed(1) + ' TH/s';
+            }, 45000);
+        }
+
+        // Refresh data function
+        function refreshData() {
+            // Show loading state
+            const refreshBtn = document.querySelector('.btn-secondary');
+            const originalHtml = refreshBtn.innerHTML;
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            refreshBtn.disabled = true;
+
+            // Simulate API call
+            setTimeout(() => {
+                initializeCharts();
+                loadRecentActivity();
+                refreshBtn.innerHTML = originalHtml;
+                refreshBtn.disabled = false;
+                
+                // Show success message
+                showNotification('Data refreshed successfully!', 'success');
+            }, 1500);
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                color: white;
+                font-weight: 600;
+                z-index: 10000;
+                animation: slideInRight 0.3s ease;
+                background: ${type === 'success' ? 'var(--success)' : 'var(--primary)'};
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Navigation
+        function navigateTo(path) {
+            window.location.href = path;
+        }
+
+        // Add CSS animation for notification
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (networkChart) networkChart.resize();
+            if (priceChart) priceChart.resize();
+        });
+    </script>
+</body>
+</html>

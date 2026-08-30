@@ -1,0 +1,340 @@
+{% extends "user.html" %}
+
+{% block title %}My Profile - Africoin{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <div class="bg-africoin rounded-circle d-inline-flex align-items-center justify-content-center" 
+                             style="width: 80px; height: 80px;">
+                            <span class="text-white fw-bold fs-4">{{ current_user.first_name[0] }}{{ current_user.last_name[0] }}</span>
+                        </div>
+                        <h5 class="mt-2 mb-0">{{ current_user.first_name }} {{ current_user.last_name }}</h5>
+                        <p class="text-muted">@{{ current_user.username }}</p>
+                    </div>
+                    
+                    <ul class="nav nav-pills flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#personal" data-bs-toggle="tab">
+                                <i class="bi bi-person me-2"></i>Personal Info
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#security" data-bs-toggle="tab">
+                                <i class="bi bi-shield-lock me-2"></i>Security
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#wallet" data-bs-toggle="tab">
+                                <i class="bi bi-wallet me-2"></i>Wallet Settings
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#preferences" data-bs-toggle="tab">
+                                <i class="bi bi-gear me-2"></i>Preferences
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="tab-content">
+                <!-- Personal Information Tab -->
+                <div class="tab-pane fade show active" id="personal">
+                    <div class="card">
+                        <div class="card-header bg-africoin text-white">
+                            <h5 class="mb-0"><i class="bi bi-person me-2"></i>Personal Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="{{ url_for('update_profile') }}">
+                                {{ form.hidden_tag() }}
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">First Name</label>
+                                        {{ form.first_name(class="form-control", value=current_user.first_name) }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Last Name</label>
+                                        {{ form.last_name(class="form-control", value=current_user.last_name) }}
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Username</label>
+                                        {{ form.username(class="form-control", value=current_user.username) }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Email</label>
+                                        {{ form.email(class="form-control", value=current_user.email) }}
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Phone</label>
+                                        {{ form.phone(class="form-control", value=current_user.phone) }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Country</label>
+                                        {{ form.country(class="form-select") }}
+                                    </div>
+                                </div>
+                                
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-africoin">Update Profile</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Account Stats -->
+                    <div class="row mt-4">
+                        <div class="col-md-4 mb-3">
+                            <div class="card stat-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="card-title text-muted">Member Since</h6>
+                                            <p class="h5 mb-0">{{ current_user.created_at.strftime('%b %Y') }}</p>
+                                        </div>
+                                        <div class="text-africoin">
+                                            <i class="bi bi-calendar-check fs-3"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card stat-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="card-title text-muted">Account Status</h6>
+                                            <p class="h5 mb-0">
+                                                <span class="badge bg-success">Verified</span>
+                                            </p>
+                                        </div>
+                                        <div class="text-africoin">
+                                            <i class="bi bi-shield-check fs-3"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card stat-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="card-title text-muted">Last Login</h6>
+                                            <p class="h5 mb-0">Just now</p>
+                                        </div>
+                                        <div class="text-africoin">
+                                            <i class="bi bi-clock-history fs-3"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Tab -->
+                <div class="tab-pane fade" id="security">
+                    <div class="card">
+                        <div class="card-header bg-africoin text-white">
+                            <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Security Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Change Password -->
+                            <div class="mb-4">
+                                <h6>Change Password</h6>
+                                <form method="POST" action="{{ url_for('change_password') }}">
+                                    {{ password_form.hidden_tag() }}
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Current Password</label>
+                                            {{ password_form.current_password(class="form-control") }}
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">New Password</label>
+                                            {{ password_form.new_password(class="form-control") }}
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Confirm Password</label>
+                                            {{ password_form.confirm_password(class="form-control") }}
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <button type="submit" class="btn btn-africoin">Update Password</button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <hr>
+                            
+                            <!-- Two-Factor Authentication -->
+                            <div>
+                                <h6>Two-Factor Authentication</h6>
+                                <p class="text-muted">Add an extra layer of security to your account.</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="bi bi-phone text-muted me-2"></i>
+                                        <span>2FA is currently disabled</span>
+                                    </div>
+                                    <button class="btn btn-outline-africoin">Enable 2FA</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wallet Settings Tab -->
+                <div class="tab-pane fade" id="wallet">
+                    <div class="card">
+                        <div class="card-header bg-africoin text-white">
+                            <h5 class="mb-0"><i class="bi bi-wallet me-2"></i>Wallet Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Wallet Address</h6>
+                                    <div class="input-group mb-3">
+                                        <input type="text" class="form-control" value="{{ current_user.wallet_address }}" readonly>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="copyWalletAddress()">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </div>
+                                    <small class="text-muted">Your public Africoin wallet address</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Wallet Balance</h6>
+                                    <div class="display-4 text-africoin fw-bold">
+                                        {{ "%.8f"|format(current_user.balance) }} <small class="fs-6">AFC</small>
+                                    </div>
+                                    <small class="text-muted">≈ ${{ "%.2f"|format(current_user.balance * exchange_rate) }} USD</small>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <!-- Transaction History -->
+                            <h6>Recent Transactions</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Type</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for tx in recent_transactions %}
+                                        <tr>
+                                            <td>{{ tx.date.strftime('%Y-%m-%d') }}</td>
+                                            <td>
+                                                <span class="badge {% if tx.type == 'received' %}bg-success{% else %}bg-warning{% endif %}">
+                                                    {{ tx.type }}
+                                                </span>
+                                            </td>
+                                            <td>{{ "%.8f"|format(tx.amount) }} AFC</td>
+                                            <td>
+                                                <span class="badge bg-success">Confirmed</span>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preferences Tab -->
+                <div class="tab-pane fade" id="preferences">
+                    <div class="card">
+                        <div class="card-header bg-africoin text-white">
+                            <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Preferences</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="{{ url_for('update_profile') }}">
+                                {{ preferences_form.hidden_tag() }}
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Language</label>
+                                    {{ preferences_form.language(class="form-select") }}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Currency</label>
+                                    {{ preferences_form.currency(class="form-select") }}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        {{ preferences_form.email_notifications(class="form-check-input") }}
+                                        <label class="form-check-label">Email Notifications</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        {{ preferences_form.sms_notifications(class="form-check-input") }}
+                                        <label class="form-check-label">SMS Notifications</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-africoin">Save Preferences</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function copyWalletAddress() {
+        const walletAddress = "{{ current_user.wallet_address }}";
+        navigator.clipboard.writeText(walletAddress).then(function() {
+            // Show success message
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success alert-dismissible fade show';
+            alert.innerHTML = `
+                Wallet address copied to clipboard!
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.container.py-4').insertBefore(alert, document.querySelector('.row'));
+        });
+    }
+    
+    // Initialize tab functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const triggerTabList = [].slice.call(document.querySelectorAll('.nav-pills a'))
+        triggerTabList.forEach(function (triggerEl) {
+            const tabTrigger = new bootstrap.Tab(triggerEl)
+            triggerEl.addEventListener('click', function (event) {
+                event.preventDefault()
+                tabTrigger.show()
+            })
+        })
+    });
+</script>
+{% endblock %}

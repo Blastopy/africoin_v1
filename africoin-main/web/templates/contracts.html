@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Contracts - Africoin</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --secondary: #FFD700;
+            --dark: #1a1a1a;
+            --darker: #0f0f0f;
+            --light: #f4f4f4;
+            --gray: #2a2a2a;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--darker), var(--dark));
+            color: var(--light);
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary), #1E6B47);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .nav-brand h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .contracts-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 968px) {
+            .contracts-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .contract-card {
+            background: var(--gray);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .template-card {
+            background: rgba(255,255,255,0.05);
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .template-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+        
+        .template-card.selected {
+            border-color: var(--secondary);
+            background: rgba(255,215,0,0.1);
+        }
+        
+        .template-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+        
+        .btn {
+            background: var(--secondary);
+            color: var(--dark);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,215,0,0.3);
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-large {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #ccc;
+            font-weight: 500;
+        }
+        
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #444;
+            border-radius: 8px;
+            background: var(--dark);
+            color: var(--light);
+            font-size: 1rem;
+        }
+        
+        .form-textarea {
+            min-height: 120px;
+            font-family: monospace;
+            resize: vertical;
+        }
+        
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .contracts-list {
+            margin-top: 2rem;
+        }
+        
+        .contract-item {
+            background: rgba(255,255,255,0.05);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .contract-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .contract-address {
+            font-family: monospace;
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+        
+        .contract-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: var(--success);
+            color: white;
+        }
+        
+        .status-paused {
+            background: var(--warning);
+            color: black;
+        }
+        
+        .status-error {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .contract-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+        
+        .code-editor {
+            background: #1e1e1e;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .editor-header {
+            background: #2d2d2d;
+            padding: 0.5rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        
+        .editor-content {
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .function-list {
+            margin: 1rem 0;
+        }
+        
+        .function-item {
+            background: rgba(255,255,255,0.05);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .function-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .gas-info {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(255,215,0,0.1);
+            border-radius: 8px;
+            border-left: 4px solid var(--warning);
+        }
+        
+        .gas-item {
+            text-align: center;
+        }
+        
+        .gas-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--warning);
+        }
+        
+        .gas-label {
+            font-size: 0.8rem;
+            color: #ccc;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #ccc;
+        }
+        
+        .error {
+            background: var(--danger);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+        }
+        
+        .success {
+            background: var(--success);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <img src="{{ url_for('static', filename='images/africoin.png') }}" alt="logo" width="100%" height="100%"/>
+            <h1>Africoin Contracts</h1>
+        </div>
+        <div class="nav-links">
+            <a href="/">Dashboard</a>
+            <a href="/blocks">Blocks</a>
+            <a href="/transactions">Transactions</a>
+            <a href="/wallet">Wallet</a>
+            <a href="/mining">Mining</a>
+            <a href="/contracts" class="active">Contracts</a>
+            <a href="/profile"><button class="btn">
+                <i class="fas fa-user"></i> Account
+            </button>
+        </a>
+        </div>
+        </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Smart Contracts</h1>
+            <button class="btn btn-large" onclick="showDeployModal()">
+                <i class="fas fa-plus"></i> Deploy Contract
+            </button>
+        </div>
+
+        <div class="contracts-layout">
+            <!-- Deployed Contracts -->
+            <div class="contract-card">
+                <h2>Deployed Contracts</h2>
+                <p>Manage your existing smart contracts</p>
+                
+                <div class="contracts-list" id="contractsList">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading contracts...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contract Interactions -->
+            <div class="contract-card">
+                <h2>Contract Interactions</h2>
+                <p>Execute functions on deployed contracts</p>
+                
+                <div class="form-group">
+                    <label class="form-label">Contract Address</label>
+                    <input type="text" class="form-input" id="interactAddress" placeholder="Enter contract address">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Select Function</label>
+                    <select class="form-select" id="functionSelect">
+                        <option value="">Select a function...</option>
+                    </select>
+                </div>
+                
+                <div id="functionParams">
+                    <!-- Function parameters will be dynamically added here -->
+                </div>
+                
+                <div class="gas-info">
+                    <div class="gas-item">
+                        <div class="gas-value" id="gasEstimate">0</div>
+                        <div class="gas-label">Gas Estimate</div>
+                    </div>
+                    <div class="gas-item">
+                        <div class="gas-value" id="gasPrice">20</div>
+                        <div class="gas-label">Gas Price (Gwei)</div>
+                    </div>
+                    <div class="gas-item">
+                        <div class="gas-value" id="totalCost">0 AFC</div>
+                        <div class="gas-label">Total Cost</div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="executeFunction()" style="width: 100%;">
+                    <i class="fas fa-play"></i> Execute Function
+                </button>
+                
+                <div id="executeResult"></div>
+            </div>
+        </div>
+
+        <!-- Contract Templates Section -->
+        <div class="contract-card">
+            <h2>Contract Templates</h2>
+            <p>Choose from pre-built contract templates</p>
+            
+            <div class="template-grid">
+                <div class="template-card" onclick="selectTemplate('token')">
+                    <div class="template-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <h3>Token</h3>
+                    <p>Create your own cryptocurrency token</p>
+                </div>
+                
+                <div class="template-card" onclick="selectTemplate('multisig')">
+                    <div class="template-icon">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                    <h3>Multi-Signature</h3>
+                    <p>Require multiple signatures for transactions</p>
+                </div>
+                
+                <div class="template-card" onclick="selectTemplate('timelock')">
+                    <div class="template-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>Time Lock</h3>
+                    <p>Lock funds for a specific period</p>
+                </div>
+                
+                <div class="template-card" onclick="selectTemplate('auction')">
+                    <div class="template-icon">
+                        <i class="fas fa-gavel"></i>
+                    </div>
+                    <h3>Auction</h3>
+                    <p>Create decentralized auctions</p>
+                </div>
+                
+                <div class="template-card" onclick="selectTemplate('custom')">
+                    <div class="template-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>Custom</h3>
+                    <p>Write your own contract code</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deploy Modal -->
+    <div id="deployModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: var(--gray); padding: 2rem; border-radius: 15px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2>Deploy New Contract</h2>
+                <button class="btn btn-danger" onclick="hideDeployModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Contract Template</label>
+                <div class="template-grid">
+                    <div class="template-card selected" id="templateToken" onclick="selectDeployTemplate('token')">
+                        <i class="fas fa-coins"></i>
+                        <h4>Token</h4>
+                    </div>
+                    <div class="template-card" id="templateMultisig" onclick="selectDeployTemplate('multisig')">
+                        <i class="fas fa-user-friends"></i>
+                        <h4>Multi-Sig</h4>
+                    </div>
+                    <div class="template-card" id="templateTimelock" onclick="selectDeployTemplate('timelock')">
+                        <i class="fas fa-clock"></i>
+                        <h4>Time Lock</h4>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="deployParams">
+                <!-- Template-specific parameters will go here -->
+            </div>
+            
+            <div class="code-editor">
+                <div class="editor-header">
+                    <span>contract.afc</span>
+                    <button class="btn btn-small" onclick="copyContractCode()">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                <div class="editor-content" id="contractCode">
+// Sample Token Contract
+contract AfricoinToken {
+    mapping(address => uint256) public balances;
+    string public name = "My Token";
+    string public symbol = "MTK";
+    uint8 public decimals = 8;
+    
+    constructor(uint256 initialSupply) {
+        balances[msg.sender] = initialSupply;
+    }
+    
+    function transfer(address to, uint256 amount) public {
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+        balances[msg.sender] -= amount;
+        balances[to] += amount;
+    }
+}
+                </div>
+            </div>
+            
+            <div class="gas-info">
+                <div class="gas-item">
+                    <div class="gas-value" id="deployGas">21000</div>
+                    <div class="gas-label">Deployment Gas</div>
+                </div>
+                <div class="gas-item">
+                    <div class="gas-value" id="deployCost">0.042 AFC</div>
+                    <div class="gas-label">Deployment Cost</div>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary btn-large" onclick="deployContract()" style="width: 100%; margin-top: 1rem;">
+                <i class="fas fa-rocket"></i> Deploy Contract
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let selectedTemplate = 'token';
+        let deployedContracts = [];
+
+        // Initialize contracts page
+        function initializeContracts() {
+            loadDeployedContracts();
+            setupTemplateParameters();
+        }
+
+        function loadDeployedContracts() {
+            // Mock data - in real implementation, fetch from API
+            deployedContracts = [
+                {
+                    address: '0x742d35Cc6634C0532925a3b8D...',
+                    name: 'MyToken',
+                    type: 'token',
+                    status: 'active',
+                    created: Date.now() - 86400000,
+                    functions: ['transfer', 'balanceOf', 'approve']
+                },
+                {
+                    address: '0x842d35Cc6634C0532925a3b8E...',
+                    name: 'TeamWallet',
+                    type: 'multisig',
+                    status: 'active',
+                    created: Date.now() - 172800000,
+                    functions: ['submitTransaction', 'confirmTransaction', 'executeTransaction']
+                }
+            ];
+            
+            displayDeployedContracts();
+        }
+
+        function displayDeployedContracts() {
+            const contractsList = document.getElementById('contractsList');
+            
+            if (deployedContracts.length === 0) {
+                contractsList.innerHTML = '<div class="loading">No contracts deployed yet.</div>';
+                return;
+            }
+            
+            const contractsHTML = deployedContracts.map(contract => `
+                <div class="contract-item">
+                    <div class="contract-header">
+                        <div>
+                            <h3>${contract.name}</h3>
+                            <div class="contract-address">${contract.address}</div>
+                        </div>
+                        <div class="contract-status status-${contract.status}">
+                            ${contract.status.toUpperCase()}
+                        </div>
+                    </div>
+                    <div>
+                        <strong>Type:</strong> ${contract.type} | 
+                        <strong>Created:</strong> ${new Date(contract.created).toLocaleDateString()}
+                    </div>
+                    <div class="contract-actions">
+                        <button class="btn btn-small" onclick="interactWithContract('${contract.address}')">
+                            <i class="fas fa-play"></i> Interact
+                        </button>
+                        <button class="btn btn-small btn-primary" onclick="viewContract('${contract.address}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="btn btn-small" onclick="copyContractAddress('${contract.address}')">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            contractsList.innerHTML = contractsHTML;
+        }
+
+        function showDeployModal() {
+            document.getElementById('deployModal').style.display = 'flex';
+        }
+
+        function hideDeployModal() {
+            document.getElementById('deployModal').style.display = 'none';
+        }
+
+        function selectDeployTemplate(template) {
+            selectedTemplate = template;
+            
+            // Update UI
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.getElementById('template' + template.charAt(0).toUpperCase() + template.slice(1)).classList.add('selected');
+            
+            setupTemplateParameters();
+        }
+
+        function setupTemplateParameters() {
+            const paramsDiv = document.getElementById('deployParams');
+            let paramsHTML = '';
+            
+            switch(selectedTemplate) {
+                case 'token':
+                    paramsHTML = `
+                        <div class="form-group">
+                            <label class="form-label">Token Name</label>
+                            <input type="text" class="form-input" id="tokenName" value="MyToken">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Token Symbol</label>
+                            <input type="text" class="form-input" id="tokenSymbol" value="MTK" maxlength="5">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Initial Supply</label>
+                            <input type="number" class="form-input" id="initialSupply" value="1000000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Decimals</label>
+                            <input type="number" class="form-input" id="tokenDecimals" value="8" min="0" max="18">
+                        </div>
+                    `;
+                    break;
+                    
+                case 'multisig':
+                    paramsHTML = `
+                        <div class="form-group">
+                            <label class="form-label">Owner Addresses (comma-separated)</label>
+                            <textarea class="form-textarea" id="ownerAddresses" placeholder="0x123...,0x456...,0x789..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Required Confirmations</label>
+                            <input type="number" class="form-input" id="requiredConfirmations" value="2" min="1">
+                        </div>
+                    `;
+                    break;
+                    
+                case 'timelock':
+                    paramsHTML = `
+                        <div class="form-group">
+                            <label class="form-label">Release Time</label>
+                            <input type="datetime-local" class="form-input" id="releaseTime">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Beneficiary Address</label>
+                            <input type="text" class="form-input" id="beneficiaryAddress" placeholder="0x...">
+                        </div>
+                    `;
+                    break;
+            }
+            
+            paramsDiv.innerHTML = paramsHTML;
+            updateContractCode();
+        }
+
+        function updateContractCode() {
+            // This would generate contract code based on selected template and parameters
+            const codeEditor = document.getElementById('contractCode');
+            // In real implementation, generate actual contract code
+            codeEditor.textContent = `// ${selectedTemplate} contract code would be generated here`;
+        }
+
+        function deployContract() {
+            // Mock deployment
+            showMessage('Contract deployment started...', 'success');
+            setTimeout(() => {
+                showMessage('Contract deployed successfully!', 'success');
+                hideDeployModal();
+                loadDeployedContracts(); // Reload contracts list
+            }, 2000);
+        }
+
+        function interactWithContract(address) {
+            document.getElementById('interactAddress').value = address;
+            // Load contract functions
+            loadContractFunctions(address);
+        }
+
+        function loadContractFunctions(address) {
+            const contract = deployedContracts.find(c => c.address === address);
+            if (contract) {
+                const functionSelect = document.getElementById('functionSelect');
+                functionSelect.innerHTML = '<option value="">Select a function...</option>' +
+                    contract.functions.map(fn => `<option value="${fn}">${fn}</option>`).join('');
+            }
+        }
+
+        function executeFunction() {
+            const functionName = document.getElementById('functionSelect').value;
+            if (!functionName) {
+                showMessage('Please select a function', 'error');
+                return;
+            }
+            
+            showMessage(`Executing ${functionName}...`, 'success');
+            // In real implementation, call the contract function via API
+        }
+
+        function copyContractCode() {
+            const code = document.getElementById('contractCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                showMessage('Contract code copied!', 'success');
+            });
+        }
+
+        function copyContractAddress(address) {
+            navigator.clipboard.writeText(address).then(() => {
+                showMessage('Contract address copied!', 'success');
+            });
+        }
+
+        function viewContract(address) {
+            showMessage(`Viewing contract ${address}`, 'info');
+            // In real implementation, show contract details
+        }
+
+        function showMessage(message, type) {
+            // Simple toast notification
+            alert(`${type.toUpperCase()}: ${message}`);
+        }
+
+        // Initialize when page loads
+        initializeContracts();
+        
+        // Set default template
+        selectDeployTemplate('token');
+    </script>
+</body>
+</html>

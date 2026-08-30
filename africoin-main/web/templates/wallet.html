@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet - Africoin</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <img src="{{ url_for('static', filename='images/africoin.png') }}" alt="logo" width="100%" height="100%"/>
+            <h1>Africoin Wallet</h1>
+        </div>
+        <div class="nav-links">
+            <a href="/"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="/blocks"><i class="fas fa-cube"></i> Blocks</a>
+            <a href="/transactions"><i class="fas fa-exchange-alt"></i> Transactions</a>
+            <a href="/wallet" class="active"><i class="fas fa-wallet"></i> Wallet</a>
+            <a href="/mining"><i class="fas fa-digging"></i> Mining</a>
+            <a href="/contracts"><i class="fas fa-file-contract"></i> Contracts</a>
+        </div>
+        <div class="nav-actions">
+            <button class="btn btn-secondary" onclick="refreshWallet()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            <a href="/profile"><button class="btn">
+                <i class="fas fa-user"></i> Account
+            </button>
+        </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Wallet Management</h1>
+            <div class="btn-group">
+                <button class="btn" onclick="showCreateWalletModal()">
+                    <i class="fas fa-plus"></i> New Wallet
+                </button>
+            </div>
+        </div>
+
+        <!-- Wallet Overview -->
+        <div class="wallet-overview">
+            <!-- Balance Card -->
+            <div class="balance-card">
+                <div class="balance-label">Total Balance</div>
+                <div class="balance-amount" id="totalBalance">{{ current_user.wallet_balance }} AFC</div>
+                <div class="balance-subtitle" id="balanceUsd">≈ ${{ "%.2f"|format(current_user.wallet_balance * exchange_rate) }} USD</div>
+                <div class="balance-actions">
+                    <button class="btn" onclick="switchTab('send')">
+                        <i class="fas fa-paper-plane"></i> Send
+                    </button>
+                    <button class="btn btn-secondary" onclick="switchTab('receive')">
+                        <i class="fas fa-qrcode"></i> Receive
+                    </button>
+                    <button class="btn btn-outline" onclick="showExchangeModal()">
+                        <i class="fas fa-exchange-alt"></i> Exchange
+                    </button>
+                </div>
+            </div>
+
+            <!-- Address Card -->
+            <div class="address-card">
+                <h3 style="margin-bottom: 1rem;">Your Address</h3>
+                <div class="qrcode-container">
+                    <canvas id="addressQrCode"></canvas>
+                </div>
+                <div class="wallet-address" id="walletAddress">
+                    {{ current_user.wallet_address }}
+                </div>
+                <div class="address-actions">
+                    <button class="btn btn-small" onclick="copyAddress()">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                    <button class="btn btn-small btn-secondary" onclick="shareAddress()">
+                        <i class="fas fa-share"></i> Share
+                    </button>
+                    <button class="btn btn-small btn-outline" onclick="showAddressDetails()">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">Balance History</h3>
+                    <select class="btn btn-small btn-secondary" id="balanceTimeRange" onchange="updateBalanceChart()">
+                        <option value="7d">7D</option>
+                        <option value="30d">30D</option>
+                        <option value="90d">90D</option>
+                    </select>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="balanceChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">Transaction Types</h3>
+                    <select class="btn btn-small btn-secondary" id="transactionTypeRange" onchange="updateTransactionChart()">
+                        <option value="30d">30D</option>
+                        <option value="90d">90D</option>
+                        <option value="1y">1Y</option>
+                    </select>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="transactionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Container -->
+        <div class="tabs-container">
+            <div class="tabs-header">
+                <div class="tab active" onclick="switchTab('send')">
+                    <i class="fas fa-paper-plane"></i>
+                    Send AFC
+                </div>
+                <div class="tab" onclick="switchTab('receive')">
+                    <i class="fas fa-qrcode"></i>
+                    Receive AFC
+                </div>
+                <div class="tab" onclick="switchTab('transactions')">
+                    <i class="fas fa-list"></i>
+                    Transactions
+                </div>
+                <div class="tab" onclick="switchTab('security')">
+                    <i class="fas fa-shield-alt"></i>
+                    Security
+                </div>
+                <div class="tab" onclick="switchTab('backup')">
+                    <i class="fas fa-download"></i>
+                    Backup
+                </div>
+            </div>
+
+            <!-- Send Tab -->
+            <div class="tab-content active" id="send-tab">
+                <div class="form-grid">
+                    <div class="form-section">
+                        <h3 style="margin-bottom: 1.5rem;">Send Africoin</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">From Address</label>
+                            <input type="text" class="form-input" id="sendFromAddress" value="{{ current_user.wallet_address }}" readonly>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">To Address</label>
+                            <input type="text" class="form-input" id="sendToAddress" placeholder="Enter recipient address" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Amount (AFC)</label>
+                            <input type="number" class="form-input" id="sendAmount" placeholder="0.00000000" step="0.00000001" min="0.00000001" required>
+                            <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
+                                <button type="button" class="btn btn-small btn-secondary" onclick="setMaxAmount()">Max</button>
+                                <span style="color: var(--text-secondary); font-size: 0.8rem;">
+                                    Balance: <span id="availableBalance">{{ current_user.wallet_balance}}</span> AFC
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Fee (AFC)</label>
+                            <select class="form-select" id="sendFee">
+                                <option value="0.0001">Slow (0.0001 AFC)</option>
+                                <option value="0.0005" selected>Normal (0.0005 AFC)</option>
+                                <option value="0.001">Fast (0.001 AFC)</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                            <div id="customFeeContainer" style="display: none; margin-top: 0.5rem;">
+                                <input type="number" class="form-input" id="customFee" placeholder="Enter custom fee" step="0.00000001" min="0.00000001">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Description (Optional)</label>
+                            <input type="text" class="form-input" id="sendDescription" placeholder="Add a note for this transaction">
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn" onclick="previewTransaction()">
+                                <i class="fas fa-eye"></i> Preview
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="clearSendForm()">
+                                <i class="fas fa-times"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h3 style="margin-bottom: 1.5rem;">Transaction Preview</h3>
+                        <div id="transactionPreview" style="color: var(--text-secondary); text-align: center; padding: 2rem;">
+                            <i class="fas fa-receipt" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>Fill out the form to preview your transaction</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Receive Tab -->
+            <div class="tab-content" id="receive-tab">
+                <div class="form-grid">
+                    <div class="form-section">
+                        <h3 style="margin-bottom: 1.5rem;">Receive Africoin</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Your Address</label>
+                            <div class="wallet-address">{{ current_user.wallet_address }}</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">QR Code</label>
+                            <div class="qrcode-container" style="margin: 0 auto; max-width: 200px;">
+                                <canvas id="receiveQrCode"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Amount Request (Optional)</label>
+                            <input type="number" class="form-input" id="requestAmount" placeholder="0.00000000" step="0.00000001" min="0">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Description (Optional)</label>
+                            <input type="text" class="form-input" id="requestDescription" placeholder="What is this payment for?">
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button class="btn" onclick="generatePaymentRequest()">
+                                <i class="fas fa-bolt"></i> Create Payment Request
+                            </button>
+                            <button class="btn btn-secondary" onclick="shareAddress()">
+                                <i class="fas fa-share"></i> Share Address
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h3 style="margin-bottom: 1.5rem;">Payment Requests</h3>
+                        <div id="paymentRequests" style="color: var(--text-secondary); text-align: center; padding: 2rem;">
+                            <i class="fas fa-file-invoice" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>No payment requests yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transactions Tab -->
+            <div class="tab-content" id="transactions-tab">
+                <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3>Transaction History</h3>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <select class="btn btn-small btn-secondary" id="transactionFilter">
+                            <option value="all">All Transactions</option>
+                            <option value="sent">Sent</option>
+                            <option value="received">Received</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                        <button class="btn btn-small btn-secondary" onclick="exportTransactions()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="transactions-list" id="walletTransactions">
+                    <!-- Transactions will be populated here -->
+                     {{ current_user.transactions }}
+                </div>
+            </div>
+
+            <!-- Security Tab -->
+            <div class="tab-content" id="security-tab">
+                <h3 style="margin-bottom: 1.5rem;">Wallet Security</h3>
+                
+                <div class="security-grid">
+                    <div class="security-card">
+                        <div class="security-header">
+                            <div class="security-icon">
+                                <i class="fas fa-key"></i>
+                            </div>
+                            <div>
+                                <div class="security-title">Private Key</div>
+                                <div class="security-description">Your wallet's master key</div>
+                            </div>
+                        </div>
+                        <div class="security-status status-enabled">
+                            <i class="fas fa-check-circle"></i>
+                            Securely Stored
+                        </div>
+                        <button class="btn btn-small btn-outline" style="margin-top: 1rem; width: 100%;" onclick="showPrivateKey()">
+                            <i class="fas fa-eye"></i> View Private Key
+                        </button>
+                    </div>
+                    
+                    <div class="security-card">
+                        <div class="security-header">
+                            <div class="security-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div>
+                                <div class="security-title">Encryption</div>
+                                <div class="security-description">Wallet file encryption</div>
+                            </div>
+                        </div>
+                        <div class="security-status status-enabled">
+                            <i class="fas fa-check-circle"></i>
+                            Enabled
+                        </div>
+                        <button class="btn btn-small btn-outline" style="margin-top: 1rem; width: 100%;" onclick="changeEncryption()">
+                            <i class="fas fa-lock"></i> Change Password
+                        </button>
+                    </div>
+                    
+                    <div class="security-card">
+                        <div class="security-header">
+                            <div class="security-icon">
+                                <i class="fas fa-user-shield"></i>
+                            </div>
+                            <div>
+                                <div class="security-title">2FA Protection</div>
+                                <div class="security-description">Two-factor authentication</div>
+                            </div>
+                        </div>
+                        <div class="security-status status-disabled">
+                            <i class="fas fa-times-circle"></i>
+                            Disabled
+                        </div>
+                        <button class="btn btn-small btn-outline" style="margin-top: 1rem; width: 100%;" onclick="enable2FA()">
+                            <i class="fas fa-mobile-alt"></i> Enable 2FA
+                        </button>
+                    </div>
+                    
+                    <div class="security-card">
+                        <div class="security-header">
+                            <div class="security-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div>
+                                <div class="security-title">Session Management</div>
+                                <div class="security-description">Active login sessions</div>
+                            </div>
+                        </div>
+                        <div class="security-status status-enabled">
+                            <i class="fas fa-check-circle"></i>
+                            1 Active Session
+                        </div>
+                        <button class="btn btn-small btn-outline" style="margin-top: 1rem; width: 100%;" onclick="manageSessions()">
+                            <i class="fas fa-desktop"></i> Manage Sessions
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Backup Tab -->
+            <div class="tab-content" id="backup-tab">
+                <div class="backup-warning">
+                    <div class="backup-warning-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div>
+                        <h4 style="margin-bottom: 0.5rem; color: var(--warning);">Secure Your Wallet</h4>
+                        <p style="margin: 0;">Backup your wallet regularly to prevent loss of funds. Store backups in multiple secure locations.</p>
+                    </div>
+                </div>
+                
+                <h3 style="margin-bottom: 1rem;">Backup Options</h3>
+                
+                <div class="backup-options">
+                    <div class="backup-option" onclick="backupToFile()">
+                        <div class="backup-icon">
+                            <i class="fas fa-file-download"></i>
+                        </div>
+                        <h4>Wallet File</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">
+                            Download encrypted wallet file
+                        </p>
+                    </div>
+                    
+                    <div class="backup-option" onclick="showRecoveryPhrase()">
+                        <div class="backup-icon">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <h4>Recovery Phrase</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">
+                            12-word mnemonic phrase
+                        </p>
+                    </div>
+                    
+                    <div class="backup-option" onclick="backupToPaper()">
+                        <div class="backup-icon">
+                            <i class="fas fa-print"></i>
+                        </div>
+                        <h4>Paper Wallet</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">
+                            Print physical backup
+                        </p>
+                    </div>
+                    
+                    <div class="backup-option" onclick="showPrivateKey()">
+                        <div class="backup-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <h4>Private Key</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">
+                            Raw private key export
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Wallet Modal -->
+    <div class="modal" id="createWalletModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeCreateWalletModal()">&times;</button>
+            <h2 class="modal-title">Create New Wallet</h2>
+            <div id="createWalletContent">
+                <!-- Create wallet content will be populated here -->
+                 <!-- Add this to your index.html -->
+<div id="setup-flow">
+    <!-- Step 1: Initialize -->
+    <div id="step-init" class="step">
+        <h3>Step 1: Initialize Wallet System</h3>
+        <p>You need to set up a master password to secure your wallets</p>
+        <button onclick="initializeWallet()">Initialize Wallet System</button>
+    </div>
+    
+    <!-- Step 2: Create/Import Wallet -->
+    <div id="step-wallet" class="step hidden">
+        <h3>Step 2: Add a Wallet</h3>
+        <p>Create a new wallet or import an existing one</p>
+        <button onclick="createNewWallet()">Create New Wallet</button>
+        <button onclick="importExistingWallet()">Import Existing Wallet</button>
+    </div>
+    
+    <!-- Step 3: Ready to Transact -->
+    <div id="step-ready" class="step hidden">
+        <h3>Ready to Send Transactions!</h3>
+        <p>Your wallets are set up and ready to use</p>
+        <div id="current-wallets"></div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Private Key Modal -->
+    <div class="modal" id="privateKeyModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closePrivateKeyModal()">&times;</button>
+            <h2 class="modal-title">Private Key</h2>
+            <div style="margin-bottom: 1.5rem;">
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    <i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i>
+                    Never share your private key with anyone!
+                </p>
+                <textarea class="form-textarea" id="privateKeyText" readonly style="font-family: monospace; height: 100px;">
+L4gB5fKc7H2qN8wV9xR3tY6uI1oP7aM0zX4vB6nC8mJ3kL9dF2hG5jH7
+                </textarea>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-danger" onclick="copyPrivateKey()">
+                    <i class="fas fa-copy"></i> Copy Private Key
+                </button>
+                <button class="btn btn-secondary" onclick="closePrivateKeyModal()">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart instances and wallet data
+        let balanceChart, transactionChart;
+        let currentAddress = document.getElementById('walletAddress').innerText.trim();
+        let walletData = {
+            balance: document.getElementById('totalBalance').innerText.trim().split(' ')[0],
+            usdValue: document.getElementById('balanceUsd').innerText.trim().split(' ')[1].replace(',', ''),
+            transactions: []
+        };
+
+        // Initialize wallet page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            loadWalletData();
+            generateQRCode('addressQrCode', currentAddress);
+            generateQRCode('receiveQrCode', currentAddress);
+            setupEventListeners();
+        });
+
+        // Initialize Charts
+        function initializeCharts() {
+            // Balance History Chart
+            const balanceCtx = document.getElementById('balanceChart').getContext('2d');
+            balanceChart = new Chart(balanceCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan 1', 'Jan 2', 'Jan 3', 'Jan 4', 'Jan 5', 'Jan 6', 'Jan 7'],
+                    datasets: [{
+                        label: 'Balance (AFC)',
+                        data: [10.5, 11.2, 10.8, 12.1, 11.9, 12.3, 12.45],
+                        borderColor: '#FFD700',
+                        backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#FFD700',
+                        pointBorderColor: '#FFFFFF',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#E8E6E3',
+                                font: { family: "'Inter', sans-serif" }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { 
+                                color: '#A8A6A3',
+                                callback: function(value) {
+                                    return value + ' AFC';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#A8A6A3' }
+                        }
+                    }
+                }
+            });
+
+            // Transaction Types Chart
+            const transactionCtx = document.getElementById('transactionChart').getContext('2d');
+            transactionChart = new Chart(transactionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Received', 'Sent', 'Mining', 'Exchange'],
+                    datasets: [{
+                        data: [45, 30, 20, 5],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(168, 85, 247, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(168, 85, 247, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#E8E6E3',
+                                font: { family: "'Inter', sans-serif" }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load Wallet Data
+        function loadWalletData() {
+            // Generate mock transactions
+            walletData.transactions = generateMockTransactions(20);
+            displayTransactions();
+            updateBalanceDisplay();
+        }
+
+        function generateMockTransactions(count) {
+            const transactions = [];
+            const types = ['received', 'sent', 'pending'];
+            const baseTimestamp = Date.now();
+            
+            for (let i = 0; i < count; i++) {
+                const type = types[Math.floor(Math.random() * types.length)];
+                const amount = type === 'received' ? Math.random() * 5 : -Math.random() * 2;
+                
+                transactions.push({
+                    id: 'tx_' + i,
+                    type: type,
+                    amount: amount,
+                    address: type === 'received' ? '1Sender' + Math.random().toString(16).substr(2, 8) : '1Receiver' + Math.random().toString(16).substr(2, 8),
+                    description: type === 'received' ? 'Payment received' : 'Payment sent',
+                    timestamp: baseTimestamp - (i * 3600000), // 1 hour intervals
+                    confirmations: type === 'pending' ? 0 : Math.floor(Math.random() * 100) + 1,
+                    status: type === 'pending' ? 'pending' : 'confirmed'
+                });
+            }
+            
+            return transactions.sort((a, b) => b.timestamp - a.timestamp);
+        }
+
+        function displayTransactions() {
+            const filter = document.getElementById('transactionFilter').value;
+            let filteredTransactions = walletData.transactions;
+            
+            if (filter !== 'all') {
+                filteredTransactions = walletData.transactions.filter(tx => {
+                    if (filter === 'sent') return tx.amount < 0;
+                    if (filter === 'received') return tx.amount > 0;
+                    if (filter === 'pending') return tx.status === 'pending';
+                    return true;
+                });
+            }
+            
+            const container = document.getElementById('walletTransactions');
+            
+            if (filteredTransactions.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                        <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <p>No transactions found</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filteredTransactions.map(tx => `
+                <div class="transaction-item" onclick="viewTransaction('${tx.id}')">
+                    <div class="transaction-icon ${tx.type}">
+                        <i class="fas fa-${tx.type === 'received' ? 'arrow-down' : tx.type === 'sent' ? 'arrow-up' : 'clock'}"></i>
+                    </div>
+                    <div class="transaction-content">
+                        <div class="transaction-title">${tx.description}</div>
+                        <div class="transaction-description">
+                            ${tx.address.substring(0, 12)}... • 
+                            ${new Date(tx.timestamp).toLocaleDateString()}
+                            ${tx.confirmations > 0 ? ` • ${tx.confirmations} confirmations` : ' • Pending'}
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="transaction-amount ${tx.amount > 0 ? 'positive' : 'negative'}">
+                            ${tx.amount > 0 ? '+' : ''}${tx.amount.toFixed(8)} AFC
+                        </div>
+                        <div class="transaction-time">
+                            ${new Date(tx.timestamp).toLocaleTimeString()}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateBalanceDisplay() {
+            document.getElementById('totalBalance').textContent = walletData.balance.toFixed(8) + ' AFC';
+            document.getElementById('balanceUsd').textContent = '≈ $' + walletData.usdValue.toLocaleString() + ' USD';
+            document.getElementById('availableBalance').textContent = walletData.balance.toFixed(8);
+        }
+
+        // Tab Management
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Add active class to clicked tab
+            event.currentTarget.classList.add('active');
+        }
+
+        // QR Code Generation
+        function generateQRCode(canvasId, text) {
+            const canvas = document.getElementById(canvasId);
+            QRCode.toCanvas(canvas, text, {
+                width: 128,
+                margin: 1,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                }
+            }, function(error) {
+                if (error) console.error('QR Code generation error:', error);
+            });
+        }
+
+        // Send Form Functions
+        function previewTransaction() {
+            const toAddress = document.getElementById('sendToAddress').value;
+            const amount = parseFloat(document.getElementById('sendAmount').value);
+            const fee = getSelectedFee();
+            const description = document.getElementById('sendDescription').value;
+            
+            if (!toAddress || !amount || amount <= 0) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            if (amount + fee > walletData.balance) {
+                showNotification('Insufficient balance', 'error');
+                return;
+            }
+            
+            const preview = document.getElementById('transactionPreview');
+            preview.innerHTML = `
+                <div style="text-align: left;">
+                    <h4 style="margin-bottom: 1rem; color: var(--secondary);">Transaction Details</h4>
+                    <div style="display: grid; gap: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">To Address:</span>
+                            <span style="font-family: monospace; font-size: 0.8rem;">${toAddress.substring(0, 16)}...</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">Amount:</span>
+                            <span style="font-weight: 600;">${amount.toFixed(8)} AFC</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">Fee:</span>
+                            <span style="color: var(--warning);">${fee.toFixed(8)} AFC</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">Total:</span>
+                            <span style="font-weight: 600;">${(amount + fee).toFixed(8)} AFC</span>
+                        </div>
+                        ${description ? `
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">Description:</span>
+                            <span>${description}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <button class="btn" style="width: 100%; margin-top: 1.5rem;" onclick="sendTransaction()">
+                        <i class="fas fa-paper-plane"></i> Send Transaction
+                    </button>
+                </div>
+            `;
+            }
+
+        function getSelectedFee() {
+            const feeSelect = document.getElementById('sendFee');
+            if (feeSelect.value === 'custom') {
+                return parseFloat(document.getElementById('customFee').value) || 0.0005;
+            }
+            return parseFloat(feeSelect.value);
+        }
+
+        function sendTransaction() {
+            function getCookie(name) {
+                return document.cookie
+                    .split("; ")
+                    .find(row => row.startsWith(name + "="))
+                    ?.split("=")[1];
+            }
+
+
+            const toAddress = document.getElementById('sendToAddress').value;
+            const amount = parseFloat(document.getElementById('sendAmount').value);
+            const fee = getSelectedFee();
+            const description = document.getElementById('sendDescription').value;
+            const token = getCookie('authToken');
+            const payload = {
+                from_address: document.getElementById('sendFromAddress').value,
+                to_address: toAddress,
+                amount: amount,
+                fee: fee,
+                description: description || ''
+            };
+try{
+            const response = fetch("http://127.0.0.1:5000/wallet/send", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify(payload),
+            credentials: 'include'
+        }).then(response => response.json())
+        .then(data => console.log(data));
+            const result = response.json();
+            console.log(token);
+            if (response.ok) {
+            alert('Transaction sent! TX Hash: ' + result.tx_hash);
+        } else {
+            alert('Error: ' + result.error);
+        }
+
+    } catch (err) {
+        console.error(err);
+        alert('Failed to send transaction.');
+    }
+    }
+                   
+            // Simulate transaction sending
+            showNotification('Transaction sent! Waiting for confirmation...', 'success');
+            
+            // Update balance
+            walletData.balance -= (amount + fee);
+            updateBalanceDisplay();
+            
+            // Add to transaction history
+            const newTransaction = {
+                id: 'tx_new_' + Date.now(),
+                type: 'sent',
+                amount: -amount,
+                address: toAddress,
+                description: description || 'Payment sent',
+                timestamp: Date.now(),
+                confirmations: 0,
+                status: 'pending'
+            };
+            
+            walletData.transactions.unshift(newTransaction);
+            displayTransactions();
+            
+            // Clear form
+            clearSendForm();
+        
+
+        function setMaxAmount() {
+            const fee = getSelectedFee();
+            const maxAmount = walletData.balance - fee;
+            document.getElementById('sendAmount').value = maxAmount.toFixed(8);
+            previewTransaction();
+        }
+
+        function clearSendForm() {
+            document.getElementById('sendToAddress').value = '';
+            document.getElementById('sendAmount').value = '';
+            document.getElementById('sendDescription').value = '';
+            document.getElementById('transactionPreview').innerHTML = `
+                <i class="fas fa-receipt" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                <p>Fill out the form to preview your transaction</p>
+            `;
+        }
+
+        // Receive Functions
+        function generatePaymentRequest() {
+            const amount = document.getElementById('requestAmount').value;
+            const description = document.getElementById('requestDescription').value;
+            
+            if (!amount || amount <= 0) {
+                showNotification('Please enter a valid amount', 'error');
+                return;
+            }
+            
+            const paymentRequest = {
+                amount: amount,
+                description: description,
+                address: currentAddress,
+                timestamp: Date.now()
+            };
+            
+            showNotification('Payment request created!', 'success');
+            
+            // In a real implementation, this would generate a payment URI or invoice
+            console.log('Payment Request:', paymentRequest);
+        }
+
+        // Security Functions
+        function showPrivateKey() {
+            document.getElementById('privateKeyModal').style.display = 'flex';
+        }
+
+        function closePrivateKeyModal() {
+            document.getElementById('privateKeyModal').style.display = 'none';
+        }
+
+        function copyPrivateKey() {
+            const privateKey = document.getElementById('privateKeyText').value;
+            navigator.clipboard.writeText(privateKey).then(() => {
+                showNotification('Private key copied to clipboard!', 'warning');
+            }).catch(err => {
+                showNotification('Failed to copy private key', 'error');
+            });
+        }
+
+        function enable2FA() {
+            showNotification('2FA setup initiated. Check your authenticator app.', 'success');
+        }
+
+        function changeEncryption() {
+            showNotification('Password change feature would be implemented here', 'info');
+        }
+
+        function manageSessions() {
+            showNotification('Session management would be implemented here', 'info');
+        }
+
+        // Backup Functions
+        function backupToFile() {
+            showNotification('Wallet backup file downloaded', 'success');
+        }
+
+        function showRecoveryPhrase() {
+            showNotification('Recovery phrase display would be implemented here', 'info');
+        }
+
+        function backupToPaper() {
+            window.print();
+        }
+
+        // Utility Functions
+        function copyAddress() {
+            navigator.clipboard.writeText(currentAddress).then(() => {
+                showNotification('Address copied to clipboard!', 'success');
+            });
+        }
+
+        function shareAddress() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My Africoin Address',
+                    text: 'Send me Africoin (AFC) at this address:',
+                    url: currentAddress
+                });
+            } else {
+                copyAddress();
+            }
+        }
+
+        function refreshWallet() {
+            const btn = document.querySelector('.btn-secondary');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            btn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Update with mock data
+                walletData.balance += Math.random() * 0.1;
+                walletData.usdValue = walletData.balance * 100;
+                updateBalanceDisplay();
+                
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                showNotification('Wallet data refreshed!', 'success');
+            }, 1500);
+        }
+
+        function exportTransactions() {
+            const data = walletData.transactions.map(tx => ({
+                Date: new Date(tx.timestamp).toISOString(),
+                Type: tx.type,
+                Amount: tx.amount,
+                Address: tx.address,
+                Description: tx.description,
+                Confirmations: tx.confirmations,
+                Status: tx.status
+            }));
+            
+            const csv = convertToCSV(data);
+            downloadCSV(csv, 'africoin-wallet-transactions.csv');
+            showNotification('Transactions exported!', 'success');
+        }
+
+        function convertToCSV(data) {
+            const headers = Object.keys(data[0]);
+            const csv = [headers.join(',')];
+            
+            data.forEach(row => {
+                const values = headers.map(header => {
+                    const value = row[header];
+                    return `"${value}"`;
+                });
+                csv.push(values.join(','));
+            });
+            
+            return csv.join('\n');
+        }
+
+        function downloadCSV(csv, filename) {
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Modal Functions
+        function showCreateWalletModal() {
+            document.getElementById('createWalletModal').style.display = 'flex';
+        }
+
+        function closeCreateWalletModal() {
+            document.getElementById('createWalletModal').style.display = 'none';
+        }
+
+        function showExchangeModal() {
+            showNotification('Exchange feature would be implemented here', 'info');
+        }
+
+        function showAddressDetails() {
+            showNotification('Address details would be shown here', 'info');
+        }
+
+        function viewTransaction(txId) {
+            showNotification(`Viewing transaction: ${txId}`, 'info');
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Fee selection
+            document.getElementById('sendFee').addEventListener('change', function() {
+                const customContainer = document.getElementById('customFeeContainer');
+                if (this.value === 'custom') {
+                    customContainer.style.display = 'block';
+                } else {
+                    customContainer.style.display = 'none';
+                }
+                previewTransaction();
+            });
+            
+            // Transaction filter
+            document.getElementById('transactionFilter').addEventListener('change', displayTransactions);
+            
+            // Form inputs for real-time preview
+            document.getElementById('sendToAddress').addEventListener('input', previewTransaction);
+            document.getElementById('sendAmount').addEventListener('input', previewTransaction);
+            document.getElementById('sendDescription').addEventListener('input', previewTransaction);
+            document.getElementById('customFee').addEventListener('input', previewTransaction);
+        }
+
+        // Chart Updates
+        function updateBalanceChart() {
+            showNotification('Balance chart updated!', 'info');
+        }
+
+        function updateTransactionChart() {
+            showNotification('Transaction chart updated!', 'info');
+        }
+
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        });
+
+        // In your frontend JavaScript
+async function createNewWallet() {
+    try {
+        const walletName = prompt("Enter wallet name:", "My Africoin Wallet");
+        if (!walletName) return;
+
+        const response = await fetch('http://localhost:5000/wallet/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name: walletName })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            alert(`New wallet created!\nAddress: ${data.address}`);
+            // Auto-fill the from address in your send form
+            document.getElementById('from-address').value = data.address;
+            loadAddresses(); // Refresh the addresses list
+        } else {
+            alert('Error creating wallet: ' + data.error);
+        }
+    } catch (error) {
+        alert('Network error: ' + error.message);
+    }
+}
+
+async function loadAddresses() {
+    try {
+        const response = await fetch('http://localhost:5000/wallet/addresses');
+        const data = await response.json();
+        
+        if (data.success) {
+            const addressesList = document.getElementById('addresses-list');
+            addressesList.innerHTML = '';
+            
+            data.addresses.forEach(address => {
+                const addressElement = document.createElement('div');
+                addressElement.className = 'address-item';
+                addressElement.innerHTML = `
+                    <strong>${address}</strong>
+                    <button onclick="useAddress('${address}')">Use This Address</button>
+                `;
+                addressesList.appendChild(addressElement);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading addresses:', error);
+    }
+}
+
+function useAddress(address) {
+    document.getElementById('from-address').value = address;
+}
+async function importExistingWallet() {
+    try {
+        const privateKey = prompt("Enter your private key:");
+        if (!privateKey) return;
+
+        const walletName = prompt("Enter wallet name:", "Imported Wallet");
+        
+        const response = await fetch('http://localhost:5000/wallet/import', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                private_key: privateKey,
+                name: walletName 
+            })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            alert(`Wallet imported successfully!\nAddress: ${data.address}`);
+            document.getElementById('from-address').value = data.address;
+            loadAddresses();
+        } else {
+            alert('Error importing wallet: ' + data.error);
+        }
+    } catch (error) {
+        alert('Network error: ' + error.message);
+    }
+}
+    </script>
+</body>
+</html>

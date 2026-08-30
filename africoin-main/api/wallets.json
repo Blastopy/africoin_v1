@@ -1,0 +1,202 @@
+{
+  "AFC857e4c0eed1563ec4b044035b453480b1928abff": {
+    "name": "Afrax Shitote's Wallet",
+    "address": "AFC857e4c0eed1563ec4b044035b453480b1928abff",
+    "encrypted_private_key": "gAAAAABpJMM1tiu0v-FRmwmeikQq6UXex4m-vEpt7vQZlh0WGE5-yoQintmQ6TXzGBrkzYStF7v5FbngOt9uwvaOqipXF0BeOlO80cKMxTk7OHgMrBPu-_l6MyO6qBaVIRNmY05XFABQ6Oy5vItj3rBS_zh01x99PuCQvSh4JsP6V_h4Wwozfy4=",
+    "public_key": "857e4c0eed1563ec4b044035b453480b1928abff8eac31a7aedbb429db6b3ef3",
+    "balance": 0.0,
+    "created_at": "2025-11-24T20:42:29.675651"
+  },
+  "AFC14874082daa7e85782665f0dd8f74c8149ed6fc5": {
+    "name": "Robin Jemovo's Wallet",
+    "address": "AFC14874082daa7e85782665f0dd8f74c8149ed6fc5",
+    "encrypted_private_key": "gAAAAABpJMQH79puoPEFDumW-c2vVXMAPvxsK8niFzjXHLR2478EUBYfg_KTJfQ4jl2rZtM5ClrHhEvIIMxGmYFrwvWka5vFMw_lett9PTj68vRxYxOXqjhi2Rfqf8gnxfImVS0iBQwaMd2zaagFFi9QhxQSYBFTK-fsGCVGMB0S1obaH9-ERGs=",
+    "public_key": "14874082daa7e85782665f0dd8f74c8149ed6fc586a4b3e713f0b0774bcc4571",
+    "balance": 0.0,
+    "created_at": "2025-11-24T20:45:59.739424"
+  },
+  "AFCbbdbd3d367a0ca8062769b0c710ea5fc16943eaa": {
+    "wallet_name": "Eric Mahare's Wallet",
+    "wallet_address": "AFCbbdbd3d367a0ca8062769b0c710ea5fc16943eaa",
+    "encrypted_private_key": "gAAAAABpLXJaWCf7J6lIoxxNDfNEaPOQaj-kT1Yrq9A6REIIuJgrod8hYzmXXSHl2hf937t1lpSmE84GlkK3X-0ZdCIOtCBCdej1q8k9HtW4ix4m7P9YXadmv5q2OzWguKwkB3ccN2uWS3G9RGpdI3rSGV6M6wBZI4zbOGanr1stwnRnmCMf0fY=",
+    "public_key": "bbdbd3d367a0ca8062769b0c710ea5fc16943eaabe0b5ce8b0b469e3c5d7fb60",
+    "balance": 0.0,
+    "created_at": "2025-12-01T10:47:54.128483"
+  },
+  "AFC2663100987ef6317e65d2bd93e4241a314dc32cb": {
+    "wallet_name": "Dennis Shitote's Wallet",
+    "wallet_address": "AFC2663100987ef6317e65d2bd93e4241a314dc32cb",
+    "encrypted_private_key": "gAAAAABpLXMV8mE-twTu0k9g-rQzNtpuDnCzIRA6Oso-V97_7GvaUCJfLSxt2FX5BaxQrFFVdgcrU7nuRcUIl7wDpgXfnZUu_o-bW2FXvyir72QKkvAr02FKbB6JhMRuj608qizyeSQQb41jllAQMqSL9BwdNPi9JhQWppLnABz9oc3Bm1MEi34=",
+    "public_key": "2663100987ef6317e65d2bd93e4241a314dc32cba60a2f7271fd6df2e8e588ce",
+    "balance": 0.0,
+    "created_at": "2025-12-01T10:51:01.812786"
+  },
+  "AFC9fcbf8c27e0b28e5133b791d53275e851c549316": {
+    "wallet_name": "Esther Wanjiku's Wallet",
+    "wallet_address": "AFC9fcbf8c27e0b28e5133b791d53275e851c549316",
+    "encrypted_private_key": "gAAAAABpLXUUE0nxQR2BgNemxzVUPZwpmkIQmyGNpKiDhDvdpQJsVGIC6-Y4DoLMwuZZBPBVbdyv8le4Y3P05XWK3nYBBJ8WgThGWaiQaYFt9dvLio1wGjyjzRRaAAI8JGzupYjPIWGIkBFC2rpILVuSKrasLIzm02P5Zax40Jd6xaTG4Qmf5wg=",
+    "public_key": "9fcbf8c27e0b28e5133b791d53275e851c549316b56c719b9d3adc305129ae51",
+    "balance": 0.0,
+    "created_at": "2025-12-01T10:59:32.115892"
+  },
+  "AFC822537b37057d0c7caa39240aa85bcab465d2ca3": {
+    "wallet_name": "Dennis Omondi's Wallet",
+    "wallet_address": "AFC822537b37057d0c7caa39240aa85bcab465d2ca3",
+    "encrypted_private_key": "gAAAAABpLXe2TdD5fmqyBEfPATGNlhVUkkmIizCd4ooe8wQAV8WelktVnOSGKOstwvLXA-08tQ4yx_-b3SfZrKknh8W4LOEkuUOk5puguhUUf3qKiRxrMJujT3OQv0Kyak8dCx_aaTnCVCOObhZodL7NXcxj10qdE1-Hx0AzkBbQ8lVyMdr7Uek=",
+    "public_key": "822537b37057d0c7caa39240aa85bcab465d2ca3728c1d63a3e114d5e10d73ae",
+    "balance": 0.0,
+    "created_at": "2025-12-01T11:10:46.589975"
+  },
+  "AFC78431f91253bc5b3f6063968de6f975a205154bc": {
+    "wallet_name": "Ibra Omondi's Wallet",
+    "wallet_address": "AFC78431f91253bc5b3f6063968de6f975a205154bc",
+    "encrypted_private_key": "gAAAAABpLXiIWpFuQwZTBK4OQsKoubOFheYzB-IW2SR4LZa2ytraiHB6zddminWkNmTsQf-sdbowArSOPMnG2bhoLyO1KMzbBvZ_N0Tz8s0oYGfVtBocyZ2Vtu2SIe33AL7FNkpXa8ILLFmwxnfi98vMsMC9iDcc7NVGFbsWQWjMS2UCLMoF4Sw=",
+    "public_key": "78431f91253bc5b3f6063968de6f975a205154bcfae8a181130ad6432f23d321",
+    "balance": 0.0,
+    "created_at": "2025-12-01T11:14:16.053826"
+  },
+  "AFCd9453ff2e5f0b619a4c38405d79548ac21ffe81e": {
+    "wallet_name": "Dennis Shitote's Wallet",
+    "wallet_address": "AFCd9453ff2e5f0b619a4c38405d79548ac21ffe81e",
+    "encrypted_private_key": "gAAAAABpLX0ofN0T4QzhTfKfg9O2UsUmac9wSASjcqVib0RujdSaXk9UL7Bpv_tGGbDZlZ0X5n0kZcY2u6s_hs0xixMzMvrvqDHnmwsBXP6YKqWsXAB9Lsu_1CAq5xfRfLgX93cJ3skDTxdtJrB9p5es_28wrhq2pCW53HZ8LZZ4-3TRQPCV1hY=",
+    "public_key": "d9453ff2e5f0b619a4c38405d79548ac21ffe81e8d6abffc91b9c50b8c049f8f",
+    "balance": 0.0,
+    "created_at": "2025-12-01T11:34:00.840907"
+  },
+  "AFC37bd192463983bf25ff6651a00885856f3159a5f": {
+    "wallet_name": "Dennis Shitote's Wallet",
+    "wallet_address": "AFC37bd192463983bf25ff6651a00885856f3159a5f",
+    "encrypted_private_key": "gAAAAABpLX1l-iEbAVEZAJTDowAxIew7TSEDjkjGxaYXM8zr2yjQGBJg_IV_rWWOGB7VhfVW6xNqf_bIpQWXSu4fBEKc-eNLOrXDuOGCcZjcVNUsHjRQpAPYGUOAkp81glJp9cjjSqKzv0X9-PmSsrbFt5hN2LymQmUBTMtbfn3NH4SZA3fYTU0=",
+    "public_key": "37bd192463983bf25ff6651a00885856f3159a5f5a40f57d522301e9d0fb8703",
+    "balance": 0.0,
+    "created_at": "2025-12-01T11:35:01.175881"
+  },
+  "AFCb7d246ec66e1ec1c1b1cc053af51ceb5a840a9fe": {
+    "wallet_name": "Dennis Shitote's Wallet",
+    "wallet_address": "AFCb7d246ec66e1ec1c1b1cc053af51ceb5a840a9fe",
+    "encrypted_private_key": "gAAAAABpLX2ZK2DLjJLPPvEAJbf2AxG0O7pU2GPWu3eGrCM8cfJas7MhAjbTxOX3jZJWf8X6rdFGfOZp6nkyieEoBSzEnhBPgQmuybYi81T9CdLg3CT1B8KmUhGF0KMqw1LBPc1pbIvFPDAbQuVlk1cPzVwK55crQ8c6Q_tEHXeM5K_FO6GvMnE=",
+    "public_key": "b7d246ec66e1ec1c1b1cc053af51ceb5a840a9fea8f2f5a9a140793e1ca97450",
+    "balance": 0.0,
+    "created_at": "2025-12-01T11:35:53.261431"
+  },
+  "AFC2fa68d217d3e87f5e2cf08448822ca7c2a268409": {
+    "wallet_name": "Dennis Shitote's Wallet",
+    "wallet_address": "AFC2fa68d217d3e87f5e2cf08448822ca7c2a268409",
+    "encrypted_private_key": "gAAAAABpLX3cpd8Y0gEFZGzl1Qj63_636nXnAjU4CLCINvW8ZO4mO1HXrJ5m7HEB56w3weG1VsPjXcUr3rN9-HIFjuJBind4k745ANUqSP0HVjHnNA2RYGELcKswJlxsq9xEmPISysD8rjYaZIyqjGhyekg0TowuZyQzniWJPP2hDdb4kxpa-cw=",
+    "public_key": "2fa68d217d3e87f5e2cf08448822ca7c2a268409412cbcc3e4e81f5c10d88b7b",
+    "balance": 0.0,
+    "created_at": "2025-12-01T11:37:00.300883"
+  },
+  "AFCe7ad92ce2546e5c57b8242846dd4986ba6a464de": {
+    "wallet_name": "Dennis Shitote's Wallet",
+    "wallet_address": "AFCe7ad92ce2546e5c57b8242846dd4986ba6a464de",
+    "encrypted_private_key": "gAAAAABpLX4Wgh1SxmdocipLwM0ACl39Ma09PWEwvkpqM2sXW4HIZ3ujuzvtl3gUjjPeBa-6RujPioxTUPgietYxRNebAdGsKKhMvkmLMum79b6REGbMjwEj471jnd8CpfqJe9224_3SP8y6nO-D2O_3iP3voQiUMXDqBNa4326T6juFC0Q2Y2Y=",
+    "public_key": "e7ad92ce2546e5c57b8242846dd4986ba6a464de741f6c2902db496358670583",
+    "balance": 0.0,
+    "created_at": "2025-12-01T11:37:58.989626"
+  },
+  "AFC6f2219964eac261a96285ab2421bd9cc414277d6": {
+    "wallet_name": "Dennis Shitote's Wallet",
+    "wallet_address": "AFC6f2219964eac261a96285ab2421bd9cc414277d6",
+    "encrypted_private_key": "gAAAAABpLX5JRG8P-5eZCQnoRVUPD7CVEXafhN4Q5mU4lgdR34XWCntBV5XFdUE8HQK259gzhqPup8A8h_GTQ56YPseN_fTunad5u3-stcCnXDAQ4S7ob0moRMTk03T7XIBJ8xiakuoStRHDf3rdkFqzzIyyGRfDfJKa2U3MIGvS5aR1SQcTn9Q=",
+    "public_key": "6f2219964eac261a96285ab2421bd9cc414277d6a21feb969de93f438dbc2efa",
+    "balance": 0.0,
+    "created_at": "2025-12-01T11:38:49.310024"
+  },
+  "AFC527e7a969f8b387d22d4aadb90ccd19b9693d701": {
+    "wallet_name": "Dennis Shitote's Wallet",
+    "wallet_address": "AFC527e7a969f8b387d22d4aadb90ccd19b9693d701",
+    "encrypted_private_key": "gAAAAABpLX5yRDjj3EhAEqb2veK9Q6keFmK3TxChrVYPsOwzKMPahv8fZBcLytToTixcqaQMkbCil3bfwspPn_jc2sMO3pjrFdGzZxJ2afWgw-qGNBf-B3sHjcMvqxX5CNXU9u-_zzKrUa1vphia45IROQW8d3SYRTHTR3BU1ZKc5IHiW70Gpc0=",
+    "public_key": "527e7a969f8b387d22d4aadb90ccd19b9693d701e9ab81e0f60e4c535dc637eb",
+    "balance": 0.0,
+    "created_at": "2025-12-01T11:39:30.124386"
+  },
+  "AFCdef6208a8b0572d02c078f156fffb5795f1665a7": {
+    "wallet_name": "Dennis Shitote's Wallet",
+    "wallet_address": "AFCdef6208a8b0572d02c078f156fffb5795f1665a7",
+    "encrypted_private_key": "gAAAAABpLX6aGDUvaOzMWb2sPh9M_8aCrT1T3E2D2Y2oOROXqcpN_b3xkAM-8r5sAu13xXPkEDkFwbi45nnzy0JeOcOQta0jifHGd68fEGoC2CL5wKUO3HvYa6vclkF_Jtl_DxumXewe-yAYnsUR_M51In2zaE1wgViOZJ2OyclxLV0XTATAGaE=",
+    "public_key": "def6208a8b0572d02c078f156fffb5795f1665a78c311f8583d6057e686ace93",
+    "balance": 0.0,
+    "created_at": "2025-12-01T11:40:10.916119"
+  },
+  "AFCc4987b90f71234c20fc9180f1921dbda88a2614a": {
+    "wallet_name": "Dennis Shitote's Wallet",
+    "wallet_address": "AFCc4987b90f71234c20fc9180f1921dbda88a2614a",
+    "encrypted_private_key": "gAAAAABpLX687ZgdALeZYjUFQ1LE1sKiIPImwQX5QONh_G0pSFhUvtlsKa2uKhkFPsV0YGMS4ONrzS7u1r2GwRll_w27sTTW6OaqWo9FrcQbK9cPt1gtT-bRc8qrJ-MjoCrTGx6OMAonzo2-cdsWKO5-JIS1kLJMYU0Is6e-KcLrZagL01OVNV8=",
+    "public_key": "c4987b90f71234c20fc9180f1921dbda88a2614aaf4ef943bf8508606a610397",
+    "balance": 0.0,
+    "created_at": "2025-12-01T11:40:44.831412"
+  },
+  "AFCf508619fa115397dc6ccedb94a5d9aad3d4b84bc": {
+    "wallet_name": "Dennis Shitote's Wallet",
+    "wallet_address": "AFCf508619fa115397dc6ccedb94a5d9aad3d4b84bc",
+    "encrypted_private_key": "gAAAAABpLX7GDeCxbZpDZWT2iDceaBePLu12JGnYCoJjJw7d7uCOHYRteltKqFfrYx1-EWyL6lQ40SkHnGibeuVL5Os6GA-Mpw6vY7YOtpEvlGpN38ZPmyVH4V_MPS4Xe8G3_pmL2XNb7Ec2YIn8iQgQ4MnnmFRihWAx9ujJnavE1_VRnlsi29s=",
+    "public_key": "f508619fa115397dc6ccedb94a5d9aad3d4b84bcc88a1ecdb05d2bf0a7de23cd",
+    "balance": 0.0,
+    "created_at": "2025-12-01T11:40:54.422968"
+  },
+  "AFC2c88fb891ffb4ea8dd059bb558ad4b6d72ecb000": {
+    "wallet_name": "Dennis Shitote's Wallet",
+    "wallet_address": "AFC2c88fb891ffb4ea8dd059bb558ad4b6d72ecb000",
+    "encrypted_private_key": "gAAAAABpLX7WebjC9mE5ROuVUsuDnBrBXl3nkUZZGjqMe1Vs4HPhZTWibIkhMx6zgBYYA7i9JNu43FgARD0n-sD7KTu9BbTGwNOg3xsWhIkZpblCWcA-UkWMx544MF8m7Bruk2oKiroyTlrydjC9ktYS_mgcO1u0E923c27ZHXsP0XczdD4GgB0=",
+    "public_key": "2c88fb891ffb4ea8dd059bb558ad4b6d72ecb0009d431128b02e50caf0c5d2ef",
+    "balance": 0.0,
+    "created_at": "2025-12-01T11:41:10.113841"
+  },
+  "AFC75a35218a1b4bf13bcd823b45d70e5cf0e6ef149": {
+    "wallet_name": "Dennis Shitote's Wallet",
+    "wallet_address": "AFC75a35218a1b4bf13bcd823b45d70e5cf0e6ef149",
+    "encrypted_private_key": "gAAAAABpLX8cBKMdV9X6KF79sjLAHI-u0meaLFNZOl2g_PaJ5v4HWpVRCSFS8lQ3tFjLrTXk33VOVmvrxmameXlkAeLzBE05UA0Fdl4AES_2a_jU72mJL6UlVtAookw422GZzTXyc8pFup88f4-RPeZMHfnxVNmQbYLfEGyvO3JS4n7Wy3rRCvc=",
+    "public_key": "75a35218a1b4bf13bcd823b45d70e5cf0e6ef14912587c97a1108fb297aeabe1",
+    "balance": 0.0,
+    "created_at": "2025-12-01T11:42:20.896749"
+  },
+  "AFCc44989804290f6faf4e8e49eac83b6c6581503da": {
+    "wallet_name": "Dennis Shitote's Wallet",
+    "wallet_address": "AFCc44989804290f6faf4e8e49eac83b6c6581503da",
+    "encrypted_private_key": "gAAAAABpLX9GzcbwW_Fz4etGZSvXdmec3n31AIv6rxvVRt1bkVB90Oh5IG_FuQKmHwC0DaYIiOq14iFr4s2f7kPulQnt5QWa9fwGqYB8__bUBKaKnk7-wEMkzSugjQVijVnoI-XdgIK8oXodi0Wuhhj26GflLbJ0S0n72f2_Do_1AwpBYu4ynX8=",
+    "public_key": "c44989804290f6faf4e8e49eac83b6c6581503dac2b54ba2f2274db9091f81cd",
+    "balance": 0.0,
+    "created_at": "2025-12-01T11:43:02.106526"
+  },
+  "AFC19f78363417be11d0c157c071fa4def88fb8621f": {
+    "wallet_name": "Dennis Shitote's Wallet",
+    "wallet_address": "AFC19f78363417be11d0c157c071fa4def88fb8621f",
+    "encrypted_private_key": "gAAAAABpLX-YU2Amqui41tU10t72LkludylSavC7LZrpBux9sszSRoSFjqzP4FPtBt0saDGCPJJ1caWs71QZsxI2eX7cP3MHFYJzD8Pm_H-QDXlLL72eq2LyZdgC51CRODKkq-Zc3khRxOlfvokaU4kRaCijhHZOs9TpQdCjBHq7zupxcN-A8M8=",
+    "public_key": "19f78363417be11d0c157c071fa4def88fb8621f1b9d0811824ab6b5efcfbbc7",
+    "balance": 0.0,
+    "created_at": "2025-12-01T11:44:24.487915"
+  },
+  "AFC472bb2ec3dbc2fa3f13af19b9ec376c99238a1bc": {
+    "wallet_name": "Dennis Shitote's Wallet",
+    "wallet_address": "AFC472bb2ec3dbc2fa3f13af19b9ec376c99238a1bc",
+    "encrypted_private_key": "gAAAAABpLYASoa3tZXRybu1PcQWTekBIEHWCgM4LhCvh93dDPNrCyXxQw92rkvfqHFyvZR20xNEUCpoGHHjagTa7QkvlWsdkYr_YfKqmAIh6hF4Tz4WFlbtINUrMz4L31fAkikN7uqFii1PijOGYO7pybBj0oEjJNKewO9uBiUEYtf-XhakQl7U=",
+    "public_key": "472bb2ec3dbc2fa3f13af19b9ec376c99238a1bc92aeaf63d1fe15b729e98feb",
+    "balance": 0.0,
+    "created_at": "2025-12-01T11:46:26.404847"
+  },
+  "AFC1f8d9f3806a177731cb410a526cc2e8d82f32927": {
+    "wallet_name": "Afrax Shitote's Wallet",
+    "wallet_address": "AFC1f8d9f3806a177731cb410a526cc2e8d82f32927",
+    "encrypted_private_key": "gAAAAABpLYCig35TuPP78lm_LhKR7GhQcGimYigUMsVWJ94aOeZLwIdp_BK5qC-C7oVYrBIdHmsRCYIsaQcqSf5nDcBMeJnWbexNUnD0pIjqlAEGCqGk6SN5ChzJdHm9Fo_zX3KVwefdUSP3ZMyAOsJ0iwxCcwTJMOms37PSgKBWA7plIT4OWLM=",
+    "public_key": "1f8d9f3806a177731cb410a526cc2e8d82f329277b3439be90d4c37d837e47b6",
+    "balance": 0.0,
+    "created_at": "2025-12-01T11:48:50.384019"
+  },
+  "AFC1453698b8993bc00d3ea24406e7060a88d4139c2": {
+    "wallet_name": "Afrax Shitote's Wallet",
+    "wallet_address": "AFC1453698b8993bc00d3ea24406e7060a88d4139c2",
+    "encrypted_private_key": "gAAAAABpLYCk7_z3705MK0ItmuZkLpr9vVhoHUAXaKdtHx9x-iEuxIlubZvZTu_4B4SAT0mh7gkI0VqQWQkPoiZZo8y_QMiz1ax65bpvgjwtY8OKkXEbQ1hTinx-kQ-OarbboRZljUJHkqtk22T0H5GmSTWmAzbWh9cJVbZjEQy7V7CaWcWdl1I=",
+    "public_key": "1453698b8993bc00d3ea24406e7060a88d4139c23018582616700896f81075b1",
+    "balance": 0.0,
+    "created_at": "2025-12-01T11:48:52.263196"
+  },
+  "AFC235ef339cdd7a378b91c3d7a6848d6e33082a06a": {
+    "wallet_name": "Dennis Shitote's Wallet",
+    "wallet_address": "AFC235ef339cdd7a378b91c3d7a6848d6e33082a06a",
+    "encrypted_private_key": "gAAAAABpLYImAeNxtgPoTnWh_viCttKOrutVK5a-UlXzQBmI8bG03XlAZjzte_bYfGjvc03se7Zlj-CwYZz_olJY9tH4JzFlSUo1YmJp0InKIbHPF4rKSkHVMZEFfIf-jxqj0ersBX1utdDLd3uz3omE_MkAEKVn-SUR4k3O0AMfIiPuqxOhfYk=",
+    "public_key": "235ef339cdd7a378b91c3d7a6848d6e33082a06ac57daf5304008a3e847a35b3",
+    "balance": 0.0,
+    "created_at": "2025-12-01T11:55:18.621074"
+  }
+}

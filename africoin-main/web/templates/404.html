@@ -1,0 +1,129 @@
+{% extends "user.html" %}
+
+{% block title %}Page Not Found - Africoin{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 text-center">
+            <!-- Error Illustration -->
+            <div class="mb-4">
+                <i class="bi bi-compass display-1 text-africoin"></i>
+            </div>
+
+            <!-- Error Message -->
+            <div class="error-content">
+                <h1 class="display-4 fw-bold text-dark mb-3">404</h1>
+                <h2 class="h3 text-muted mb-4">Page Not Found</h2>
+                
+                <p class="lead text-muted mb-4">
+                    Oops! The page you're looking for seems to have wandered off into the digital wilderness. 
+                    It might have been moved, deleted, or never existed in the first place.
+                </p>
+
+                <!-- Search Bar -->
+                <div class="row justify-content-center mb-4">
+                    <div class="col-md-8">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Search Africoin..." id="searchInput">
+                            <button class="btn btn-africoin" type="button" onclick="performSearch()">
+                                <i class="bi bi-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="bi bi-house-door fs-1 text-africoin mb-3"></i>
+                                <h5 class="card-title">Go Home</h5>
+                                <p class="card-text text-muted small">Return to the homepage</p>
+                                <a href="{{ url_for('index') }}" class="btn btn-outline-africoin btn-sm">Home</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="bi bi-wallet fs-1 text-africoin mb-3"></i>
+                                <h5 class="card-title">Dashboard</h5>
+                                <p class="card-text text-muted small">Go to your dashboard</p>
+                                {% if current_user.is_authenticated %}
+                                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-africoin btn-sm">Dashboard</a>
+                                {% else %}
+                                <a href="{{ url_for('login') }}" class="btn btn-outline-africoin btn-sm">Login</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="bi bi-question-circle fs-1 text-africoin mb-3"></i>
+                                <h5 class="card-title">Get Help</h5>
+                                <p class="card-text text-muted small">Contact support</p>
+                                <button class="btn btn-outline-africoin btn-sm" onclick="contactSupport()">Support</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technical Details (Optional) -->
+                <div class="alert alert-light border mt-4">
+                    <small class="text-muted">
+                        <strong>Technical Details:</strong><br>
+                        • URL: <code id="currentUrl"></code><br>
+                        • Error: 404 - Page Not Found<br>
+                        • Timestamp: <span id="timestamp"></span>
+                    </small>
+                </div>
+
+                <!-- Contact Support -->
+                <div class="mt-4">
+                    <p class="text-muted">
+                        If you believe this is an error, please 
+                        <a href="mailto:support@africoin.com?subject=404 Error on Africoin" class="text-africoin">contact our support team</a>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Display current URL and timestamp
+    document.getElementById('currentUrl').textContent = window.location.href;
+    document.getElementById('timestamp').textContent = new Date().toLocaleString();
+
+    function performSearch() {
+        const query = document.getElementById('searchInput').value.trim();
+        if (query) {
+            // Simple search implementation - redirect to search results
+            window.location.href = `{{ url_for('index') }}?search=${encodeURIComponent(query)}`;
+        }
+    }
+
+    function contactSupport() {
+        const subject = '404 Error on Africoin';
+        const body = `I encountered a 404 error on the following page:\n${window.location.href}\n\nAdditional details:`;
+        window.location.href = `mailto:support@africoin.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+
+    // Allow Enter key to trigger search
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            performSearch();
+        }
+    });
+
+    // Auto-focus search input
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('searchInput').focus();
+    });
+</script>
+{% endblock %}

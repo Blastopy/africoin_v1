@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions Explorer - Africoin</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <img src="{{ url_for('static', filename='images/africoin.png') }}" alt="logo" width="100%" height="100%"/>
+            <h1>Africoin Explorer</h1>
+        </div>
+        <div class="nav-links">
+            <a href="/"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="/blocks"><i class="fas fa-cube"></i> Blocks</a>
+            <a href="/transactions" class="active"><i class="fas fa-exchange-alt"></i> Transactions</a>
+            <a href="/wallet"><i class="fas fa-wallet"></i> Wallet</a>
+            <a href="/mining"><i class="fas fa-digging"></i> Mining</a>
+            <a href="/contracts"><i class="fas fa-file-contract"></i> Contracts</a>
+        </div>
+        <div class="nav-actions">
+            <button class="btn btn-secondary" onclick="refreshTransactions()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            <a href="/profile"><button class="btn">
+                <i class="fas fa-user"></i> Account
+            </button>
+        </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Transactions Explorer</h1>
+            <div class="btn-group">
+                <button class="btn" onclick="exportTransactions()">
+                    <i class="fas fa-download"></i> Export Data
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-value" id="totalTransactions">2.1M</div>
+                <div class="stat-label">Total Transactions</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-arrow-up"></i> 12.4% growth
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="transactions24h">45.2K</div>
+                <div class="stat-label">Transactions (24h)</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-arrow-up"></i> 8.2% increase
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgFee">0.0012 AFC</div>
+                <div class="stat-label">Average Fee</div>
+                <div class="stat-trend trend-down">
+                    <i class="fas fa-arrow-down"></i> 15% lower
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalVolume">1.2B AFC</div>
+                <div class="stat-label">Total Volume</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-arrow-up"></i> 24.7% increase
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">Transaction Volume</h3>
+                    <div class="chart-actions">
+                        <select class="btn btn-secondary" id="volumeTimeRange" onchange="updateVolumeChart()">
+                            <option value="24h">24H</option>
+                            <option value="7d">7D</option>
+                            <option value="30d">30D</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="volumeChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">Transaction Fees</h3>
+                    <div class="chart-actions">
+                        <select class="btn btn-secondary" id="feesTimeRange" onchange="updateFeesChart()">
+                            <option value="24h">24H</option>
+                            <option value="7d">7D</option>
+                            <option value="30d">30D</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="feesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="action-btn" onclick="filterByStatus('pending')">
+                <div class="action-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="action-content">
+                    <div class="action-title">Pending Transactions</div>
+                    <div class="action-description" id="pendingCount">1,247 pending</div>
+                </div>
+            </button>
+            
+            <button class="action-btn" onclick="filterByType('large')">
+                <div class="action-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <div class="action-content">
+                    <div class="action-title">Large Transactions</div>
+                    <div class="action-description">> 1,000 AFC</div>
+                </div>
+            </button>
+            
+            <button class="action-btn" onclick="filterByType('contract')">
+                <div class="action-icon">
+                    <i class="fas fa-file-contract"></i>
+                </div>
+                <div class="action-content">
+                    <div class="action-title">Smart Contracts</div>
+                    <div class="action-description">Contract executions</div>
+                </div>
+            </button>
+            
+            <button class="action-btn" onclick="showUnconfirmedTransactions()">
+                <div class="action-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="action-content">
+                    <div class="action-title">Unconfirmed</div>
+                    <div class="action-description">0 confirmations</div>
+                </div>
+            </button>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="filters-section">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label class="filter-label">Time Range</label>
+                    <select class="filter-select" id="timeFilter" onchange="filterTransactions()">
+                        <option value="all">All Time</option>
+                        <option value="1h">Last Hour</option>
+                        <option value="24h">Last 24 Hours</option>
+                        <option value="7d">Last 7 Days</option>
+                        <option value="30d">Last 30 Days</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Status</label>
+                    <select class="filter-select" id="statusFilter" onchange="filterTransactions()">
+                        <option value="all">All Status</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="pending">Pending</option>
+                        <option value="failed">Failed</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Amount Range (AFC)</label>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="number" class="filter-input" id="minAmount" placeholder="Min" min="0" step="0.00000001" onchange="filterTransactions()">
+                        <input type="number" class="filter-input" id="maxAmount" placeholder="Max" min="0" step="0.00000001" onchange="filterTransactions()">
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">&nbsp;</label>
+                    <button class="btn btn-secondary" onclick="clearFilters()">
+                        <i class="fas fa-times"></i> Clear Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="transactions-table-container">
+            <div class="table-header">
+                <h2>Recent Transactions</h2>
+                <input type="text" class="search-box" id="searchTransaction" placeholder="Search by TX hash, address, or block..." onkeyup="searchTransactions()">
+            </div>
+            
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Transaction Hash</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Amount</th>
+                            <th>Fee</th>
+                            <th>Status</th>
+                            <th>Block</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTableBody">
+                        <!-- Transactions will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="pagination">
+                <div class="pagination-info" id="paginationInfo">
+                    Showing 1-15 of 2,100,000 transactions
+                </div>
+                <div class="pagination-controls" id="paginationControls">
+                    <!-- Pagination buttons will be generated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Detail Modal -->
+    <div class="modal" id="transactionDetailModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeTransactionDetail()">&times;</button>
+            <h2 class="modal-title">Transaction Details</h2>
+            <div id="transactionDetailContent">
+                <!-- Transaction details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart instances and data
+        let volumeChart, feesChart;
+        let currentPage = 1;
+        const transactionsPerPage = 15;
+        // Transactions currently rendered on screen (one page's worth, as
+        // returned by the server). Filtering/paging/searching all happen
+        // server-side now against the real Transaction table, so the browser
+        // never has to generate or hold thousands of fake rows.
+        let currentPageTransactions = [];
+        let totalPages = 1;
+        let totalTransactions = 0;
+        let searchDebounceTimer = null;
+
+        // Initialize transactions page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+
+            // Support deep-linking with ?search=... (e.g. shared links)
+            const params = new URLSearchParams(window.location.search);
+            const initialSearch = params.get('search');
+            if (initialSearch) {
+                document.getElementById('searchTransaction').value = initialSearch;
+            }
+
+            loadStats();
+            loadTransactions();
+            startLiveUpdates();
+        });
+
+        // Build the query string for the current filter/search/page state
+        function buildQuery(extra = {}) {
+            const p = new URLSearchParams({
+                page: extra.page || currentPage,
+                per_page: transactionsPerPage,
+                status: document.getElementById('statusFilter').value,
+                time_range: document.getElementById('timeFilter').value,
+            });
+            const search = document.getElementById('searchTransaction').value.trim();
+            if (search) p.set('search', search);
+            const minAmount = document.getElementById('minAmount').value;
+            if (minAmount) p.set('min_amount', minAmount);
+            const maxAmount = document.getElementById('maxAmount').value;
+            if (maxAmount) p.set('max_amount', maxAmount);
+            if (extra.type) p.set('type', extra.type);
+            return p.toString();
+        }
+
+        // Initialize Charts
+        function initializeCharts() {
+            // Volume Chart
+            const volumeCtx = document.getElementById('volumeChart').getContext('2d');
+            volumeChart = new Chart(volumeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '23:59'],
+                    datasets: [{
+                        label: 'Transaction Volume (AFC)',
+                        data: [1250000, 1890000, 2850000, 3980000, 2560000, 3120000, 2850000],
+                        backgroundColor: 'rgba(46, 139, 87, 0.8)',
+                        borderColor: '#2E8B57',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#E8E6E3',
+                                font: { family: "'Inter', sans-serif" }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Volume: ${(context.parsed.y / 1000000).toFixed(2)}M AFC`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { 
+                                color: '#A8A6A3',
+                                callback: function(value) {
+                                    return (value / 1000000).toFixed(1) + 'M';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#A8A6A3' }
+                        }
+                    }
+                }
+            });
+
+            // Fees Chart
+            const feesCtx = document.getElementById('feesChart').getContext('2d');
+            feesChart = new Chart(feesCtx, {
+                type: 'line',
+                data: {
+                    labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '23:59'],
+                    datasets: [{
+                        label: 'Average Fee (AFC)',
+                        data: [0.0015, 0.0018, 0.0012, 0.0011, 0.0013, 0.0016, 0.0014],
+                        borderColor: '#FFD700',
+                        backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#FFD700',
+                        pointBorderColor: '#FFFFFF',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#E8E6E3',
+                                font: { family: "'Inter', sans-serif" }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Fee: ${context.parsed.y} AFC`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 0.001,
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { 
+                                color: '#A8A6A3',
+                                callback: function(value) {
+                                    return value + ' AFC';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#A8A6A3' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load real transaction stats (totals, 24h count, avg fee, volume,
+        // pending count) and feed the charts with actual bucketed data.
+        function loadStats() {
+            fetch('/api/transactions/stats')
+                .then(res => res.json())
+                .then(stats => {
+                    document.getElementById('totalTransactions').textContent = stats.total_transactions.toLocaleString();
+                    document.getElementById('transactions24h').textContent = stats.transactions_24h.toLocaleString();
+                    document.getElementById('avgFee').textContent = `${stats.avg_fee.toFixed(4)} AFC`;
+                    document.getElementById('totalVolume').textContent = `${stats.total_volume.toLocaleString(undefined, {maximumFractionDigits: 2})} AFC`;
+                    document.getElementById('pendingCount').textContent = `${stats.pending_count.toLocaleString()} pending`;
+
+                    if (volumeChart) {
+                        volumeChart.data.datasets[0].data = stats.volume_buckets;
+                        volumeChart.update();
+                    }
+                    if (feesChart) {
+                        feesChart.data.datasets[0].data = stats.fee_buckets;
+                        feesChart.update();
+                    }
+                })
+                .catch(err => console.error('Failed to load transaction stats:', err));
+        }
+
+        // Load Transactions Data - fetches one real, filtered, paginated
+        // page from the server instead of generating fake rows in the browser.
+        function loadTransactions() {
+            showLoading();
+
+            fetch(`/api/transactions?${buildQuery()}`)
+                .then(res => res.json())
+                .then(data => {
+                    currentPageTransactions = data.transactions;
+                    totalPages = data.total_pages;
+                    totalTransactions = data.total;
+                    currentPage = data.page;
+
+                    displayTransactions();
+                    updatePagination();
+                })
+                .catch(err => {
+                    console.error('Failed to load transactions:', err);
+                    const tbody = document.getElementById('transactionsTableBody');
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                                Could not load transactions right now. Please try again.
+                            </td>
+                        </tr>
+                    `;
+                });
+        }
+
+        function displayTransactions() {
+            const pageTransactions = currentPageTransactions;
+            const tbody = document.getElementById('transactionsTableBody');
+            
+            if (pageTransactions.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                            <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                            No transactions found matching your criteria
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = pageTransactions.map(tx => `
+                <tr onclick="showTransactionDetail('${tx.hash}')" style="cursor: pointer;">
+                    <td>
+                        <a href="#" class="tx-hash" onclick="event.stopPropagation(); showTransactionDetail('${tx.hash}')">
+                            ${tx.hash.substring(0, 16)}...
+                        </a>
+                    </td>
+                    <td>
+                        <span class="address" title="${tx.from}">
+                            ${tx.from.substring(0, 12)}...
+                        </span>
+                    </td>
+                    <td>
+                        <span class="address" title="${tx.to}">
+                            ${tx.to.substring(0, 12)}...
+                        </span>
+                    </td>
+                    <td>
+                        <span class="amount ${tx.amount > 0 ? 'positive' : ''}">
+                            ${tx.amount > 0 ? '+' : ''}${tx.amount.toFixed(8)} AFC
+                        </span>
+                    </td>
+                    <td>
+                        <span class="fee">${tx.fee.toFixed(8)} AFC</span>
+                    </td>
+                    <td>
+                        <span class="status-badge status-${tx.status}">
+                            ${tx.status.toUpperCase()}
+                        </span>
+                        ${tx.confirmations > 0 ? `<div class="confirmations">${tx.confirmations} confirmations</div>` : ''}
+                    </td>
+                    <td>
+                        <a href="/blocks" class="block-number" onclick="event.stopPropagation();">
+                            ${tx.block !== null && tx.block !== undefined ? '#' + tx.block.toLocaleString() : 'Unconfirmed'}
+                        </a>
+                    </td>
+                    <td>
+                        <span class="timestamp">${tx.timestamp ? new Date(tx.timestamp).toLocaleString() : '—'}</span>
+                    </td>
+                </tr>
+            `).join('');
+            
+            updatePaginationInfo();
+        }
+
+        function updatePaginationInfo() {
+            if (totalTransactions === 0) {
+                document.getElementById('paginationInfo').textContent = 'No transactions found';
+                return;
+            }
+            const start = ((currentPage - 1) * transactionsPerPage) + 1;
+            const end = Math.min(start + transactionsPerPage - 1, totalTransactions);
+            
+            document.getElementById('paginationInfo').textContent = 
+                `Showing ${start}-${end} of ${totalTransactions.toLocaleString()} transactions`;
+        }
+
+        function updatePagination() {
+            const controls = document.getElementById('paginationControls');
+            
+            let html = '';
+            
+            // Previous button
+            html += `<button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+                <i class="fas fa-chevron-left"></i>
+            </button>`;
+            
+            // Page numbers
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, startPage + 4);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+                    ${i}
+                </button>`;
+            }
+            
+            // Next button
+            html += `<button class="pagination-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+                <i class="fas fa-chevron-right"></i>
+            </button>`;
+            
+            controls.innerHTML = html;
+        }
+
+        function changePage(page) {
+            if (page < 1 || page > totalPages) return;
+            
+            currentPage = page;
+            loadTransactions();
+            
+            // Scroll to top of table
+            document.querySelector('.transactions-table-container').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+
+        // Filtering and Search - each of these re-queries the server with the
+        // current filter state rather than filtering an in-browser array.
+        function filterTransactions() {
+            currentPage = 1;
+            loadTransactions();
+        }
+
+        function searchTransactions() {
+            // Debounce so we don't fire a request on every keystroke
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => {
+                currentPage = 1;
+                loadTransactions();
+            }, 350);
+        }
+
+        function clearFilters() {
+            document.getElementById('timeFilter').value = 'all';
+            document.getElementById('statusFilter').value = 'all';
+            document.getElementById('minAmount').value = '';
+            document.getElementById('maxAmount').value = '';
+            document.getElementById('searchTransaction').value = '';
+            
+            filterTransactions();
+        }
+
+        // Quick Filter Functions
+        function filterByStatus(status) {
+            document.getElementById('statusFilter').value = status;
+            filterTransactions();
+        }
+
+        function filterByType(type) {
+            if (type === 'large') {
+                document.getElementById('minAmount').value = '1000';
+                document.getElementById('maxAmount').value = '';
+                filterTransactions();
+                return;
+            } else if (type === 'contract') {
+                currentPage = 1;
+                fetch(`/api/transactions?${buildQuery({type: 'contract'})}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        currentPageTransactions = data.transactions;
+                        totalPages = data.total_pages;
+                        totalTransactions = data.total;
+                        displayTransactions();
+                        updatePagination();
+                    });
+                return;
+            }
+            filterTransactions();
+        }
+
+        function showUnconfirmedTransactions() {
+            document.getElementById('statusFilter').value = 'pending';
+            document.getElementById('minAmount').value = '';
+            document.getElementById('maxAmount').value = '';
+            filterTransactions();
+        }
+
+        // Transaction Detail Modal
+        function showTransactionDetail(hash) {
+            const tx = currentPageTransactions.find(t => t.hash === hash);
+            if (!tx) return;
+            
+            const modal = document.getElementById('transactionDetailModal');
+            const content = document.getElementById('transactionDetailContent');
+            
+            content.innerHTML = `
+                <div class="transaction-detail-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Transaction Hash</span>
+                        <span class="detail-value">${tx.hash}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Status</span>
+                        <span class="detail-value">
+                            <span class="status-badge status-${tx.status}">
+                                ${tx.status.toUpperCase()}
+                            </span>
+                            ${tx.confirmations > 0 ? `(${tx.confirmations} confirmations)` : ''}
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">From Address</span>
+                        <span class="detail-value">${tx.from}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">To Address</span>
+                        <span class="detail-value">${tx.to}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Amount</span>
+                        <span class="detail-value" style="color: var(--success); font-weight: 600;">
+                            ${tx.amount.toFixed(8)} AFC
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Transaction Fee</span>
+                        <span class="detail-value" style="color: var(--warning);">
+                            ${tx.fee.toFixed(8)} AFC
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Block</span>
+                        <span class="detail-value">${tx.block !== null && tx.block !== undefined ? '#' + tx.block.toLocaleString() : 'Unconfirmed'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Timestamp</span>
+                        <span class="detail-value">${tx.timestamp ? new Date(tx.timestamp).toLocaleString() : '—'}</span>
+                    </div>
+                </div>
+                
+                <div class="inputs-outputs">
+                    <div class="io-section">
+                        <h3 class="io-title">Inputs</h3>
+                        <div class="io-item">
+                            <span class="io-address">${tx.from.substring(0, 20)}...</span>
+                            <span class="io-amount">${(tx.amount + tx.fee).toFixed(8)} AFC</span>
+                        </div>
+                    </div>
+                    
+                    <div class="io-section">
+                        <h3 class="io-title">Outputs</h3>
+                        <div class="io-item">
+                            <span class="io-address">${tx.to.substring(0, 20)}...</span>
+                            <span class="io-amount">${tx.amount.toFixed(8)} AFC</span>
+                        </div>
+                        <div class="io-item">
+                            <span class="io-address">Fee</span>
+                            <span class="io-amount">${tx.fee.toFixed(8)} AFC</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="btn" onclick="viewAddress('${tx.from}')">
+                        <i class="fas fa-user"></i> View Sender
+                    </button>
+                    <button class="btn" onclick="viewAddress('${tx.to}')">
+                        <i class="fas fa-user"></i> View Receiver
+                    </button>
+                    <button class="btn btn-secondary" onclick="copyTransactionHash('${tx.hash}')">
+                        <i class="fas fa-copy"></i> Copy Hash
+                    </button>
+                    <button class="btn btn-outline" onclick="viewBlock(${tx.block})">
+                        <i class="fas fa-cube"></i> View Block
+                    </button>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeTransactionDetail() {
+            document.getElementById('transactionDetailModal').style.display = 'none';
+        }
+
+        function copyTransactionHash(hash) {
+            navigator.clipboard.writeText(hash).then(() => {
+                showNotification('Transaction hash copied to clipboard!', 'success');
+            });
+        }
+
+        function viewAddress(address) {
+            // Navigate to address page or show address details
+            showNotification(`Viewing address: ${address.substring(0, 12)}...`, 'info');
+        }
+
+        function viewBlock(blockNumber) {
+            window.location.href = `/blocks#block-${blockNumber}`;
+        }
+
+        // Utility Functions
+        function refreshTransactions() {
+            const btn = document.querySelector('.btn-secondary');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                loadTransactions();
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                showNotification('Transactions data refreshed!', 'success');
+            }, 1500);
+        }
+
+        function exportTransactions() {
+            // Export up to 500 rows matching the current filters, fetched
+            // fresh from the server (not just whatever happens to be on screen).
+            fetch(`/api/transactions?${buildQuery({page: 1})}&per_page=500`)
+                .then(res => res.json())
+                .then(result => {
+                    if (!result.transactions.length) {
+                        showNotification('No transactions to export', 'info');
+                        return;
+                    }
+                    const data = result.transactions.map(tx => ({
+                        Hash: tx.hash,
+                        From: tx.from,
+                        To: tx.to,
+                        Amount: tx.amount,
+                        Fee: tx.fee,
+                        Status: tx.status,
+                        Confirmations: tx.confirmations,
+                        Block: tx.block ?? '',
+                        Timestamp: tx.timestamp ? new Date(tx.timestamp).toISOString() : ''
+                    }));
+
+                    const csv = convertToCSV(data);
+                    downloadCSV(csv, 'africoin-transactions.csv');
+                    showNotification('Transactions data exported!', 'success');
+                })
+                .catch(() => showNotification('Export failed, please try again', 'info'));
+        }
+
+        function convertToCSV(data) {
+            const headers = Object.keys(data[0]);
+            const csv = [headers.join(',')];
+            
+            data.forEach(row => {
+                const values = headers.map(header => {
+                    const value = row[header];
+                    return `"${value}"`;
+                });
+                csv.push(values.join(','));
+            });
+            
+            return csv.join('\n');
+        }
+
+        function downloadCSV(csv, filename) {
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function showLoading() {
+            document.getElementById('transactionsTableBody').innerHTML = `
+                <tr>
+                    <td colspan="8">
+                        <div class="loading">
+                            <i class="fas fa-spinner loading-spinner"></i>
+                            <div>Loading transactions...</div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function hideLoading() {
+            // Loading state is cleared by displayTransactions()
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                color: white;
+                font-weight: 600;
+                z-index: 10000;
+                animation: slideInRight 0.3s ease;
+                background: ${type === 'success' ? 'var(--success)' : 'var(--primary)'};
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Live Updates - poll the real stats/first page periodically instead
+        // of fabricating fake transactions client-side.
+        function startLiveUpdates() {
+            setInterval(() => {
+                loadStats();
+                if (currentPage === 1) {
+                    loadTransactions();
+                }
+            }, 15000);
+        }
+
+        // Chart Updates - the time-range dropdowns currently only affect the
+        // 24h bucketed view returned by /api/transactions/stats; re-pull it.
+        function updateVolumeChart() {
+            loadStats();
+        }
+
+        function updateFeesChart() {
+            loadStats();
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('transactionDetailModal');
+            if (event.target === modal) {
+                closeTransactionDetail();
+            }
+        });
+
+        // Add CSS animation for notification
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

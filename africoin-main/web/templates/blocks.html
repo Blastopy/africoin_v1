@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blocks Explorer - Africoin</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+                <img src="{{ url_for('static', filename='images/africoin.png') }}" alt="logo" width="100%" height="100%"/>
+            <h1>Africoin Explorer</h1>
+        </div>
+        <div class="nav-links">
+            <a href="/"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="/blocks" class="active"><i class="fas fa-cube"></i> Blocks</a>
+            <a href="/transactions"><i class="fas fa-exchange-alt"></i> Transactions</a>
+            <a href="/wallet"><i class="fas fa-wallet"></i> Wallet</a>
+            <a href="/mining"><i class="fas fa-digging"></i> Mining</a>
+            <a href="/contracts"><i class="fas fa-file-contract"></i> Contracts</a>
+        </div>
+        <div class="nav-actions">
+            <button class="btn btn-secondary" onclick="refreshBlocks()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            <a href="/profile"><button class="btn">
+                <i class="fas fa-user"></i> Account
+            </button>
+        </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Blocks Explorer</h1>
+            <div class="btn-group">
+                <button class="btn" onclick="exportBlocks()">
+                    <i class="fas fa-download"></i> Export Data
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-value" id="totalBlocks">0</div>
+                <div class="stat-label">Total Blocks</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-arrow-up"></i> 42 new blocks
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="blocks24h">144</div>
+                <div class="stat-label">Blocks (24h)</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-arrow-up"></i> 5.8% increase
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgBlockTime">9.8s</div>
+                <div class="stat-label">Average Block Time</div>
+                <div class="stat-trend trend-down">
+                    <i class="fas fa-arrow-down"></i> 0.3s faster
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalTransactions">2.1M</div>
+                <div class="stat-label">Total Transactions</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-arrow-up"></i> 12.4% growth
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">Block Time History</h3>
+                    <div class="chart-actions">
+                        <select class="btn btn-secondary" id="blockTimeRange" onchange="updateBlockTimeChart()">
+                            <option value="24h">24H</option>
+                            <option value="7d">7D</option>
+                            <option value="30d">30D</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="blockTimeChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">Block Size Distribution</h3>
+                    <div class="chart-actions">
+                        <select class="btn btn-secondary" id="blockSizeRange" onchange="updateBlockSizeChart()">
+                            <option value="24h">24H</option>
+                            <option value="7d">7D</option>
+                            <option value="30d">30D</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="blockSizeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="filters-section">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label class="filter-label">Time Range</label>
+                    <select class="filter-select" id="timeFilter" onchange="filterBlocks()">
+                        <option value="all">All Time</option>
+                        <option value="24h">Last 24 Hours</option>
+                        <option value="7d">Last 7 Days</option>
+                        <option value="30d">Last 30 Days</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Min Transactions</label>
+                    <input type="number" class="filter-input" id="minTransactions" placeholder="0" min="0" onchange="filterBlocks()">
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Block Height Range</label>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="number" class="filter-input" id="minHeight" placeholder="Min" min="0" onchange="filterBlocks()">
+                        <input type="number" class="filter-input" id="maxHeight" placeholder="Max" min="0" onchange="filterBlocks()">
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">&nbsp;</label>
+                    <button class="btn btn-secondary" onclick="clearFilters()">
+                        <i class="fas fa-times"></i> Clear Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Blocks Table -->
+        <div class="blocks-table-container">
+            <div class="table-header">
+                <h2>Recent Blocks</h2>
+                <input type="text" class="search-box" id="searchBlock" placeholder="Search by block height or hash..." onkeyup="searchBlocks()">
+            </div>
+            
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Height</th>
+                            <th>Hash</th>
+                            <th>Timestamp</th>
+                            <th>Transactions</th>
+                            <th>Size</th>
+                            <th>Difficulty</th>
+                            <th>Miner</th>
+                        </tr>
+                    </thead>
+                    <tbody id="blocksTableBody">
+                        <!-- Blocks will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="pagination">
+                <div class="pagination-info" id="paginationInfo">
+                    Showing 1-10 of 12,456 blocks
+                </div>
+                <div class="pagination-controls" id="paginationControls">
+                    <!-- Pagination buttons will be generated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Block Detail Modal -->
+    <div class="modal" id="blockDetailModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeBlockDetail()">&times;</button>
+            <h2 class="modal-title">Block Details</h2>
+            <div id="blockDetailContent">
+                <!-- Block details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart instances and data
+        let blockTimeChart, blockSizeChart;
+        let currentPage = 1;
+        const blocksPerPage = 10;
+        let allBlocks = [];
+        let filteredBlocks = [];
+
+        // Initialize blocks page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            loadBlocks();
+            startLiveUpdates();
+        });
+
+        // Initialize Charts
+        function initializeCharts() {
+            // Block Time Chart
+            const blockTimeCtx = document.getElementById('blockTimeChart').getContext('2d');
+            blockTimeChart = new Chart(blockTimeCtx, {
+                type: 'line',
+                data: {
+                    labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '23:59'],
+                    datasets: [{
+                        label: 'Block Time (seconds)',
+                        data: [10.2, 9.8, 9.5, 9.2, 9.8, 10.1, 9.6],
+                        borderColor: '#FFD700',
+                        backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#FFD700',
+                        pointBorderColor: '#FFFFFF',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#E8E6E3',
+                                font: { family: "'Inter', sans-serif" }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 8,
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { 
+                                color: '#A8A6A3',
+                                callback: function(value) { return value + 's'; }
+                            }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#A8A6A3' }
+                        }
+                    }
+                }
+            });
+
+            // Block Size Chart
+            const blockSizeCtx = document.getElementById('blockSizeChart').getContext('2d');
+            blockSizeChart = new Chart(blockSizeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['0-100KB', '100-500KB', '500KB-1MB', '1MB-2MB', '2MB+'],
+                    datasets: [{
+                        label: 'Number of Blocks',
+                        data: [45, 120, 85, 40, 10],
+                        backgroundColor: [
+                            'rgba(46, 139, 87, 0.8)',
+                            'rgba(46, 139, 87, 0.7)',
+                            'rgba(46, 139, 87, 0.6)',
+                            'rgba(46, 139, 87, 0.5)',
+                            'rgba(46, 139, 87, 0.4)'
+                        ],
+                        borderColor: '#2E8B57',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#E8E6E3',
+                                font: { family: "'Inter', sans-serif" }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#A8A6A3' }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#A8A6A3' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load Blocks Data
+        function loadBlocks() {
+            showLoading();
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Generate mock blocks data
+                allBlocks = generateMockBlocks(12456, 50);
+                filteredBlocks = [...allBlocks];
+                
+                displayBlocks();
+                updatePagination();
+                hideLoading();
+            }, 1000);
+        }
+
+        function generateMockBlocks(startHeight, count) {
+            const blocks = [];
+            const baseTimestamp = Date.now();
+            const miners = [
+                'Africoin Pool #1', 'CryptoMiner X', 'DigitalGold Farm',
+                'BlockForge', 'HashMaster Pro', 'Africoin Foundation'
+            ];
+            
+            for (let i = 0; i < count; i++) {
+                const height = startHeight - i;
+                const txCount = Math.floor(Math.random() * 200) + 1;
+                const size = Math.floor(Math.random() * 1500) + 100; // KB
+                const difficulty = Math.floor(Math.random() * 50000) + 10000;
+                
+                blocks.push({
+                    height: height,
+                    hash: '0x' + Math.random().toString(16).substr(2, 64),
+                    timestamp: baseTimestamp - (i * 600000), // 10 min intervals
+                    transactions: txCount,
+                    size: size,
+                    difficulty: difficulty,
+                    miner: miners[Math.floor(Math.random() * miners.length)]
+                });
+            }
+            
+            return blocks;
+        }
+
+        function displayBlocks() {
+            const startIndex = (currentPage - 1) * blocksPerPage;
+            const endIndex = startIndex + blocksPerPage;
+            const pageBlocks = filteredBlocks.slice(startIndex, endIndex);
+            
+            const tbody = document.getElementById('blocksTableBody');
+            
+            if (pageBlocks.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                            <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                            No blocks found matching your criteria
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = pageBlocks.map(block => `
+                <tr onclick="showBlockDetail(${block.height})" style="cursor: pointer;">
+                    <td>
+                        <span class="block-number">#${block.height.toLocaleString()}</span>
+                    </td>
+                    <td>
+                        <a href="#" class="block-hash" onclick="event.stopPropagation(); showBlockDetail(${block.height})">
+                            ${block.hash.substring(0, 16)}...
+                        </a>
+                    </td>
+                    <td>
+                        <span class="timestamp">${new Date(block.timestamp).toLocaleString()}</span>
+                    </td>
+                    <td>
+                        <span class="tx-count">${block.transactions} TX</span>
+                    </td>
+                    <td>
+                        <span class="block-size">${block.size} KB</span>
+                    </td>
+                    <td>
+                        <span class="difficulty-badge">${block.difficulty.toLocaleString()}</span>
+                    </td>
+                    <td>
+                        <span style="color: var(--text-secondary); font-size: 0.85rem;">${block.miner}</span>
+                    </td>
+                </tr>
+            `).join('');
+            
+            updatePaginationInfo();
+        }
+
+        function updatePaginationInfo() {
+            const total = filteredBlocks.length;
+            const start = ((currentPage - 1) * blocksPerPage) + 1;
+            const end = Math.min(start + blocksPerPage - 1, total);
+            
+            document.getElementById('paginationInfo').textContent = 
+                `Showing ${start}-${end} of ${total.toLocaleString()} blocks`;
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredBlocks.length / blocksPerPage);
+            const controls = document.getElementById('paginationControls');
+            
+            let html = '';
+            
+            // Previous button
+            html += `<button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+                <i class="fas fa-chevron-left"></i>
+            </button>`;
+            
+            // Page numbers
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, startPage + 4);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+                    ${i}
+                </button>`;
+            }
+            
+            // Next button
+            html += `<button class="pagination-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+                <i class="fas fa-chevron-right"></i>
+            </button>`;
+            
+            controls.innerHTML = html;
+        }
+
+        function changePage(page) {
+            if (page < 1 || page > Math.ceil(filteredBlocks.length / blocksPerPage)) return;
+            
+            currentPage = page;
+            displayBlocks();
+            updatePagination();
+            
+            // Scroll to top of table
+            document.querySelector('.blocks-table-container').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+
+        // Filtering and Search
+        function filterBlocks() {
+            const timeFilter = document.getElementById('timeFilter').value;
+            const minTransactions = parseInt(document.getElementById('minTransactions').value) || 0;
+            const minHeight = parseInt(document.getElementById('minHeight').value) || 0;
+            const maxHeight = parseInt(document.getElementById('maxHeight').value) || Infinity;
+            
+            filteredBlocks = allBlocks.filter(block => {
+                // Time filter
+                if (timeFilter !== 'all') {
+                    const now = Date.now();
+                    const blockTime = block.timestamp;
+                    let timeLimit;
+                    
+                    switch(timeFilter) {
+                        case '24h': timeLimit = now - (24 * 60 * 60 * 1000); break;
+                        case '7d': timeLimit = now - (7 * 24 * 60 * 60 * 1000); break;
+                        case '30d': timeLimit = now - (30 * 24 * 60 * 60 * 1000); break;
+                        default: timeLimit = 0;
+                    }
+                    
+                    if (blockTime < timeLimit) return false;
+                }
+                
+                // Transaction count filter
+                if (block.transactions < minTransactions) return false;
+                
+                // Height range filter
+                if (block.height < minHeight || block.height > maxHeight) return false;
+                
+                return true;
+            });
+            
+            currentPage = 1;
+            displayBlocks();
+            updatePagination();
+        }
+
+        function searchBlocks() {
+            const searchTerm = document.getElementById('searchBlock').value.toLowerCase();
+            
+            if (!searchTerm) {
+                filterBlocks();
+                return;
+            }
+            
+            filteredBlocks = allBlocks.filter(block => 
+                block.height.toString().includes(searchTerm) ||
+                block.hash.toLowerCase().includes(searchTerm)
+            );
+            
+            currentPage = 1;
+            displayBlocks();
+            updatePagination();
+        }
+
+        function clearFilters() {
+            document.getElementById('timeFilter').value = 'all';
+            document.getElementById('minTransactions').value = '';
+            document.getElementById('minHeight').value = '';
+            document.getElementById('maxHeight').value = '';
+            document.getElementById('searchBlock').value = '';
+            
+            filterBlocks();
+        }
+
+        // Block Detail Modal
+        function showBlockDetail(height) {
+            const block = allBlocks.find(b => b.height === height);
+            if (!block) return;
+            
+            const modal = document.getElementById('blockDetailModal');
+            const content = document.getElementById('blockDetailContent');
+            
+            content.innerHTML = `
+                <div class="block-detail-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Block Height</span>
+                        <span class="detail-value">#${block.height.toLocaleString()}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Block Hash</span>
+                        <span class="detail-value" style="font-family: monospace;">${block.hash}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Timestamp</span>
+                        <span class="detail-value">${new Date(block.timestamp).toLocaleString()}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Transactions</span>
+                        <span class="detail-value">${block.transactions} transactions</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Size</span>
+                        <span class="detail-value">${block.size} KB</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Difficulty</span>
+                        <span class="detail-value">${block.difficulty.toLocaleString()}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Miner</span>
+                        <span class="detail-value">${block.miner}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Confirmations</span>
+                        <span class="detail-value">${(12456 - block.height).toLocaleString()}</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                    <button class="btn" onclick="viewBlockTransactions(${block.height})">
+                        <i class="fas fa-list"></i> View Transactions
+                    </button>
+                    <button class="btn btn-secondary" onclick="copyBlockHash('${block.hash}')">
+                        <i class="fas fa-copy"></i> Copy Hash
+                    </button>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeBlockDetail() {
+            document.getElementById('blockDetailModal').style.display = 'none';
+        }
+
+        function copyBlockHash(hash) {
+            navigator.clipboard.writeText(hash).then(() => {
+                showNotification('Block hash copied to clipboard!', 'success');
+            });
+        }
+
+        function viewBlockTransactions(height) {
+            // Navigate to transactions page filtered by block
+            window.location.href = `/transactions?block=${height}`;
+        }
+
+        // Utility Functions
+        function refreshBlocks() {
+            const btn = document.querySelector('.btn-secondary');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                loadBlocks();
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                showNotification('Blocks data refreshed!', 'success');
+            }, 1500);
+        }
+
+        function exportBlocks() {
+            // Simple export functionality
+            const data = filteredBlocks.map(block => ({
+                Height: block.height,
+                Hash: block.hash,
+                Timestamp: new Date(block.timestamp).toISOString(),
+                Transactions: block.transactions,
+                Size: block.size,
+                Difficulty: block.difficulty,
+                Miner: block.miner
+            }));
+            
+            const csv = convertToCSV(data);
+            downloadCSV(csv, 'africoin-blocks.csv');
+            showNotification('Blocks data exported!', 'success');
+        }
+
+        function convertToCSV(data) {
+            const headers = Object.keys(data[0]);
+            const csv = [headers.join(',')];
+            
+            data.forEach(row => {
+                const values = headers.map(header => {
+                    const value = row[header];
+                    return `"${value}"`;
+                });
+                csv.push(values.join(','));
+            });
+            
+            return csv.join('\n');
+        }
+
+        function downloadCSV(csv, filename) {
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function showLoading() {
+            document.getElementById('blocksTableBody').innerHTML = `
+                <tr>
+                    <td colspan="7">
+                        <div class="loading">
+                            <i class="fas fa-spinner loading-spinner"></i>
+                            <div>Loading blocks...</div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function hideLoading() {
+            // Loading state is cleared by displayBlocks()
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                color: white;
+                font-weight: 600;
+                z-index: 10000;
+                animation: slideInRight 0.3s ease;
+                background: ${type === 'success' ? 'var(--success)' : 'var(--primary)'};
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Live Updates
+        function startLiveUpdates() {
+            // Simulate new blocks every 30 seconds
+            setInterval(() => {
+                const newBlock = generateMockBlocks(12457, 1)[0];
+                allBlocks.unshift(newBlock);
+                filteredBlocks.unshift(newBlock);
+                
+                // Update stats
+                document.getElementById('totalBlocks').textContent = (parseInt(document.getElementById('totalBlocks').textContent) + 1).toLocaleString();
+                document.getElementById('blocks24h').textContent = (parseInt(document.getElementById('blocks24h').textContent) + 1).toLocaleString();
+                
+                // Refresh display if on first page
+                if (currentPage === 1) {
+                    displayBlocks();
+                }
+                
+                showNotification(`New block mined! #${newBlock.height}`, 'info');
+            }, 30000);
+        }
+
+        // Chart Updates
+        function updateBlockTimeChart() {
+            // In a real implementation, this would fetch new data based on time range
+            showNotification('Block time chart updated!', 'info');
+        }
+
+        function updateBlockSizeChart() {
+            // In a real implementation, this would fetch new data based on time range
+            showNotification('Block size chart updated!', 'info');
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('blockDetailModal');
+            if (event.target === modal) {
+                closeBlockDetail();
+            }
+        });
+
+        // Add CSS animation for notification
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
