@@ -5,7 +5,7 @@ from flask import current_app
 
 class WalletService:
     def __init__(self):
-        self.base_url = "http://localhost:5000"
+        self.base_url = "https://africoin-v1.onrender.com"
         self.api_key = "your_internal_api_key_456"
         logging.info(f"WalletService using direct config: {self.base_url}")
         
