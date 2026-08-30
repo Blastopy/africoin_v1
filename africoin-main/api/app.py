@@ -44,7 +44,7 @@ def create_app():
     app.config['SECRET_KEY'] = 'Africoin2025bymainnet'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['WALLET_MASTER_PASSWORD'] = 'default_master_password_123'
-    app.config['WALLET_API_URL'] = 'http://localhost:5000'
+    app.config['WALLET_API_URL'] = 'https://africoin-v1.onrender.com'
     app.config['DEBUG'] = True
     
     # Try to load from Config, but keep our defaults as fallback
@@ -101,7 +101,7 @@ app = create_app()
 
 # Enable CORS
 CORS(app,
-     resources={r"/*": {"origins": ["http://localhost:7070", "http://127.0.0.1:7070"]}},
+     resources={r"/*": {"origins": ["https://africoin-v1.onrender.com", "https://africoin-v1.onrender.com"]}},
      supports_credentials=True)
 
 # Rate limiting
