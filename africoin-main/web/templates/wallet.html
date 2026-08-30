@@ -1090,7 +1090,7 @@ async function createNewWallet() {
         const walletName = prompt("Enter wallet name:", "My Africoin Wallet");
         if (!walletName) return;
 
-        const response = await fetch('http://localhost:5000/wallet/create', {
+        const response = await fetch('https://africoin-v1.onrender.com/wallet/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1115,7 +1115,7 @@ async function createNewWallet() {
 
 async function loadAddresses() {
     try {
-        const response = await fetch('http://localhost:5000/wallet/addresses');
+        const response = await fetch('https://africoin-v1.onrender.com/wallet/addresses');
         const data = await response.json();
         
         if (data.success) {
@@ -1147,7 +1147,7 @@ async function importExistingWallet() {
 
         const walletName = prompt("Enter wallet name:", "Imported Wallet");
         
-        const response = await fetch('http://localhost:5000/wallet/import', {
+        const response = await fetch('https://africoin-v1.onrender.com/wallet/import', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
